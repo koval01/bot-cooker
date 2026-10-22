@@ -1,0 +1,24 @@
+The company:
+- Name: {{ persona.company }}
+- Industry: {{ persona.industry.id }}
+- Product or app name: {{ persona.app_name }}
+- Typical things it handles: {{ site.api_resources|join(", ") }}
+- Words from its world: {{ site.vocabulary|join(", ") }}
+- Based in time zone: {{ persona.tz_name }}
+
+Write the raw text a Markov text generator will be trained on for this company's website. It recombines sentences, so give it plenty of varied, complete sentences in the company's own voice. Return six collections of paragraphs:
+
+- blog: posts about the company's work, changes, team news, lessons learned
+- docs: help and documentation text about using its product or service
+- company: about-us, how they work, values in concrete terms
+- support: answers to customer questions, policies, troubleshooting
+- updates: release notes and service announcements
+- notes: internal-sounding news, planning, small incidents
+
+Each collection: {{ paragraphs }} paragraphs of 3 to 6 sentences. Vary sentence length and openings. Inside sentences you may use these placeholders, which are filled in later with the company's own words; use them often but naturally, and use no other braces:
+- {topic} and {topic2}: one of the words from its world above
+- {resource}: one of the typical things it handles
+- {company}: the company name
+- {product}: the product or app name
+
+Make the voice specific to this company: pick a tone (dry, warm, terse, chatty, formal...) that fits its industry and keep it.

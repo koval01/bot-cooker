@@ -1,0 +1,100 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+env:
+  CARGO_TERM_COLOR: always
+  RUSTFLAGS: -D warnings
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - run: rustup toolchain install
+      - uses: Swatinem/rust-cache@v2
+      - run: cargo fmt --check
+      - run: cargo clippy --all-targets --locked
+      - run: cargo clippy --all-targets --features pack --locked
+      - name: API docs
+        run: cargo doc --no-deps --locked
+        env:
+          RUSTDOCFLAGS: -D warnings
+      - name: Shell scripts
+        run: shellcheck -S style deploy/*.sh
+
+  # Unit, engine, router and real-process tests on each server OS.
+  test:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v7
+      - run: rustup toolchain install
+      - uses: Swatinem/rust-cache@v2
+      - run: cargo clippy --all-targets --locked
+      - run: cargo test --release --locked
+      - name: Pack tool unit tests
+        if: runner.os == 'Linux'
+        run: "cargo test --release --features pack --locked pack::"
+
+  # Install the release build as a real Windows service with the shipped
+  # scripts, hit it over HTTP, stop it, remove it.
+  windows-service:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v7
+      - run: rustup toolchain install
+      - uses: Swatinem/rust-cache@v2
+      - run: cargo build --release --locked
+      - name: Stage the release layout
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force dist | Out-Null
+          Copy-Item target/release/bot-cooker.exe, bot-cooker.yaml, deploy/windows/*.ps1 dist/
+      - name: Install the service (Windows PowerShell 5.1)
+        run: powershell -NoProfile -ExecutionPolicy Bypass -File dist/install-service.ps1 -Port 8088
+      - name: Talk to the service
+        shell: pwsh
+        run: |
+          $deadline = (Get-Date).AddSeconds(60)
+          do {
+            try { $r = Invoke-WebRequest -UseBasicParsing -TimeoutSec 30 http://127.0.0.1:8088/robots.txt; break }
+            catch { Start-Sleep -Seconds 1 }
+          } while ((Get-Date) -lt $deadline)
+          if (-not $r -or $r.StatusCode -ne 200 -or $r.Content -notmatch '(?i)user-agent') { throw "robots.txt not served" }
+      - name: Stop the service
+        shell: pwsh
+        run: |
+          Stop-Service bot-cooker
+          (Get-Service bot-cooker).WaitForStatus('Stopped', [TimeSpan]::FromSeconds(20))
+          $log = "$env:ProgramData\bot-cooker\bot-cooker.log"
+          Get-Content $log
+          if (-not (Select-String -Path $log -Pattern 'shutdown complete' -Quiet)) { throw "no graceful shutdown in the log" }
+      - name: Remove the service
+        if: always()
+        run: powershell -NoProfile -ExecutionPolicy Bypass -File dist/uninstall-service.ps1 -Purge
+
+  # Build the image and run it the way the compose files do.
+  docker:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - run: docker build -t bot-cooker:ci .
+      - run: docker run --rm -e COOKER_MASTER_KEY=ci-check bot-cooker:ci --config /app/bot-cooker.yaml --check
+      - name: Serve and stop
+        run: |
+          docker run -d --name trap -p 8080:8080 -e COOKER_MASTER_KEY=ci-run bot-cooker:ci
+          for i in $(seq 30); do curl -fsS --max-time 30 http://127.0.0.1:8080/robots.txt -o robots.txt && break; sleep 1; done
+          grep -qi 'user-agent' robots.txt
+          docker stop -t 10 trap
+          test "$(docker inspect -f '{{.State.ExitCode}}' trap)" = 0
+          docker logs trap 2>&1 | grep -q 'shutdown complete'

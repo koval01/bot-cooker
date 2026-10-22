@@ -1,0 +1,50 @@
+# HTTPS trap built from this checkout: Caddy (Let's Encrypt + renewal) in front
+# of bot-cooker. For production servers prefer the one-line installer
+# (deploy/install.sh), which runs the released image and keeps keys across
+# upgrades.
+#
+#   DOMAIN=trap.example.com \
+#   COOKER_MASTER_KEY="$(openssl rand -hex 32)" \
+#   COOKER_ADMIN_TOKEN="$(openssl rand -hex 24)" \
+#   docker compose -f docker-compose.caddy.yml up -d --build
+#
+# Point the domain's DNS A/AAAA record straight at this server (DNS-only, not
+# proxied). Once the certificate is issued the hostname appears in the public
+# Certificate Transparency logs, which scanners watch.
+
+services:
+  bot-cooker:
+    build: .
+    restart: unless-stopped
+    environment:
+      COOKER_MASTER_KEY: "${COOKER_MASTER_KEY:?set COOKER_MASTER_KEY to a long random secret}"
+      COOKER_ADMIN_TOKEN: "${COOKER_ADMIN_TOKEN:-}"
+    expose:
+      - "8080"                       # internal only; Caddy reaches it
+    networks: [net]
+    ulimits:
+      nofile:
+        soft: 65535
+        hard: 65535
+
+  caddy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      DOMAIN: "${DOMAIN:?set DOMAIN to your trap hostname}"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    networks: [net]
+    depends_on: [bot-cooker]
+
+networks:
+  net:
+
+volumes:
+  caddy_data:
+  caddy_config:

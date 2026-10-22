@@ -1,0 +1,24 @@
+[core]
+	repositoryformatversion = 0
+	filemode = {{ "false" if persona.frontend == "iis" else "true" }}
+	bare = false
+	logallrefupdates = true
+{% if persona.frontend == "iis" %}
+	symlinks = false
+	ignorecase = true
+{% endif %}
+[remote "origin"]
+	url = {{ site.git_remote }}
+	fetch = +refs/heads/*:refs/remotes/origin/*
+[branch "{{ site.default_branch }}"]
+	remote = origin
+	merge = refs/heads/{{ site.default_branch }}
+{% if persona_seed % 3 == 0 %}
+[user]
+	name = {{ developer.name }}
+	email = {{ developer.email }}
+{% endif %}
+{% if persona_seed % 4 == 1 %}
+[pull]
+	rebase = {{ ["true", "false"]|choice(persona_seed, "rebase") }}
+{% endif %}

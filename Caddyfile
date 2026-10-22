@@ -1,0 +1,25 @@
+# Caddy terminates TLS (auto Let's Encrypt + renewal) and streams every request
+# to bot-cooker. `flush_interval -1` disables response buffering so the slow
+# byte-drip reaches the client in real time instead of being batched by Caddy.
+
+{
+	# No HTTP/3: Caddy would advertise it with an `Alt-Svc: h3` header on every
+	# response, which no persona's front server sends.
+	servers {
+		protocols h1 h2
+	}
+}
+
+{$DOMAIN} {
+	# Caddy stamps `Via: 1.1 Caddy` on proxied responses; the persona's own
+	# `Server` header passes through untouched.
+	header -Via
+
+	# No `encode` here on purpose: we want the raw slow drip to pass straight
+	# through, unbuffered, exactly as bot-cooker emits it.
+	reverse_proxy bot-cooker:8080 {
+		flush_interval -1
+		# Pass the real client IP through so bot-cooker's stats are accurate.
+		header_up X-Real-IP {remote_host}
+	}
+}

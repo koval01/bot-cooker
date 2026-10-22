@@ -1,0 +1,14 @@
+#cloud-config
+# One-click trap: paste this as "user data" (cloud-init) when creating a Linux
+# server at your provider (Hetzner, DigitalOcean, AWS, Oracle Cloud, ...).
+#
+# 1. Replace trap.example.com with the hostname you will point at the server.
+# 2. Create the server, then add a DNS A/AAAA record for that hostname with the
+#    server's public address (DNS-only, not proxied by a CDN).
+# 3. The installer waits for DNS; the certificate is issued once it resolves.
+#
+# Open ports 80 and 443 in the provider's firewall / security group.
+runcmd:
+# 4. Add --auto-update to the options if this server should install new
+#    releases by itself (off unless you ask for it).
+  - curl -fsSL https://raw.githubusercontent.com/koval01/bot-cooker/main/deploy/install.sh | bash -s -- --yes --domain trap.example.com

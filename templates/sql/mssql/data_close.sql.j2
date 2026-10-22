@@ -1,0 +1,4 @@
+{% if table.columns|selectattr("type", "eq", "pk")|list %}
+SET IDENTITY_INSERT [dbo].[{{ table.name }}] OFF
+GO
+{% endif %}

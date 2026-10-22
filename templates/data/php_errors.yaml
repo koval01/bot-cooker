@@ -1,0 +1,153 @@
+# PHP errors a box prints into its pages when `display_errors` is on, as
+# PHP itself formats them (`templates/php/display.j2`, main.c
+# php_error_cb). Only stacks that let PHP print raw errors are listed:
+# Laravel and Symfony turn them into their own error pages, Drupal prints
+# them in its own format with paths relative to its root, and Joomla 4+
+# throws them through Symfony's ErrorHandler. Joomla 3 and WordPress leave
+# them to PHP.
+#
+# The persona picks a mode (how errors would reach a page), a few faulty
+# places in the code and what goes wrong there; most personas get a quiet
+# mode, so their pages print nothing. The faults also feed the PHP error log
+# (`logs/app/wordpress.log.j2`), whether or not they are displayed.
+
+# The engine's wording by the first PHP release (major.minor) that uses it,
+# checked against php-src (Zend/zend_execute.c, zend_vm_def.h, zend_API.c,
+# zend_object_handlers.c, zend_alloc.c). A kind without an entry for the
+# persona's PHP never happens there. `{name}` slots are filled per fault.
+messages:
+  undefined_key:
+    "7.4": {level: notice, text: "Undefined index: {key}"}
+    "8.0": {level: warning, text: 'Undefined array key "{key}"'}
+  undefined_variable:
+    "7.4": {level: notice, text: "Undefined variable: {var}"}
+    "8.0": {level: warning, text: "Undefined variable ${var}"}
+  offset_on_null:
+    "7.4": {level: notice, text: "Trying to access array offset on value of type null"}
+    "8.0": {level: warning, text: "Trying to access array offset on value of type null"}
+    "8.3": {level: warning, text: "Trying to access array offset on null"}
+  property_on_null:
+    "7.4": {level: notice, text: "Trying to get property '{prop}' of non-object"}
+    "8.0": {level: warning, text: 'Attempt to read property "{prop}" on null'}
+  foreach_on_null:
+    "7.4": {level: warning, text: "Invalid argument supplied for foreach()"}
+    "8.0": {level: warning, text: "foreach() argument must be of type array|object, null given"}
+  null_to_internal:
+    "8.1": {level: deprecated, text: "{fn}(): Passing null to parameter #{n} (${param}) of type {type} is deprecated"}
+  dynamic_property:
+    "8.2": {level: deprecated, text: "Creation of dynamic property {class}::${prop} is deprecated"}
+  memory_exhausted:
+    "7.4": {level: error, text: "Allowed memory size of {limit} bytes exhausted (tried to allocate {size} bytes)"}
+  # WordPress's own notices, raised through trigger_error() in
+  # wp_trigger_error() (wp-includes/functions.php, 6.4+).
+  wp_textdomain:
+    "7.4": {level: notice, text: 'Function _load_textdomain_just_in_time was called <strong>incorrectly</strong>. Translation loading for the <code>{domain}</code> domain was triggered too early. This is usually an indicator for some code in the plugin or theme running too early. Translations should be loaded at the <code>init</code> action or later. Please see <a href="https://developer.wordpress.org/advanced-administration/debug/debug-wordpress/">Debugging in WordPress</a> for more information. (This message was added in version 6.7.0.)'}
+  wp_deprecated_function:
+    "7.4": {level: deprecated, text: "Function {fn} is <strong>deprecated</strong> since version {since}! Use {use} instead."}
+
+# How PHP labels each level on the page and in the log.
+labels: {error: Fatal error, warning: Warning, notice: Notice, deprecated: Deprecated}
+
+# Arguments of internal functions, as PHP 8.1+ names them when null is
+# passed (ext/standard/basic_functions.stub.php, Zend builtins, pcre, json).
+null_args:
+  - {fn: strlen, n: 1, param: string, type: string}
+  - {fn: trim, n: 1, param: string, type: string}
+  - {fn: rtrim, n: 1, param: string, type: string}
+  - {fn: htmlspecialchars, n: 1, param: string, type: string}
+  - {fn: str_replace, n: 3, param: subject, type: "array|string"}
+  - {fn: strpos, n: 1, param: haystack, type: string}
+  - {fn: explode, n: 2, param: string, type: string}
+  - {fn: urlencode, n: 1, param: string, type: string}
+  - {fn: stripslashes, n: 1, param: string, type: string}
+  - {fn: strtolower, n: 1, param: string, type: string}
+  - {fn: substr, n: 1, param: string, type: string}
+  - {fn: strip_tags, n: 1, param: string, type: string}
+  - {fn: preg_match, n: 2, param: subject, type: string}
+  - {fn: json_decode, n: 1, param: json, type: string}
+  - {fn: base64_decode, n: 1, param: string, type: string}
+
+# Bytes the allocator asked for when the limit was hit.
+allocations: [4096, 8192, 12288, 20480, 32768, 65536, 262144, 2097160]
+
+stacks:
+  wordpress:
+    # `setting` is what the persona's config files say: WP_DEBUG on, or
+    # php.ini's display_errors on behind WP_DEBUG off (WordPress then
+    # reports warnings only, wp_debug_mode() in wp-includes/load.php).
+    modes:
+      - {setting: wp_debug, display: app, levels: [error, warning, notice, deprecated], weight: 3}
+      - {setting: ini, display: ini, levels: [error, warning], weight: 2}
+      - {setting: quiet, display: off, levels: [error, warning], weight: 20}
+    # Requests to these scripts load the plugins too.
+    blank_boots: true
+    words:
+      key: [page, action, tab, post_type, redirect_to, nonce, id, type, orderby, paged, s, lang, HTTP_REFERER, REQUEST_SCHEME]
+      var: [post_id, output, options, settings, html, atts, current_user, term, class, value]
+      prop: [ID, post_type, post_content, term_id, slug, name, user_login, post_status]
+    sources:
+      - {file: wp-content/plugins/contact-form-7/includes/contact-form.php, class: WPCF7_ContactForm, domain: contact-form-7, lines: 1381, place: body}
+      - {file: wp-content/plugins/contact-form-7/includes/formatting.php, domain: contact-form-7, lines: 634, place: body}
+      - {file: wp-content/plugins/wordpress-seo/inc/class-wpseo-utils.php, class: WPSEO_Utils, domain: wordpress-seo, lines: 1112}
+      - {file: wp-content/plugins/woocommerce/includes/class-woocommerce.php, class: WooCommerce, domain: woocommerce, lines: 1858}
+      - {file: wp-content/plugins/woocommerce/includes/wc-core-functions.php, domain: woocommerce, lines: 2704}
+      - {file: wp-content/plugins/elementor/includes/plugin.php, class: 'Elementor\Plugin', domain: elementor, lines: 838}
+      - {file: wp-content/plugins/akismet/class.akismet.php, class: Akismet, domain: akismet, lines: 2427}
+      - {file: wp-content/plugins/classic-editor/classic-editor.php, class: Classic_Editor, domain: classic-editor, lines: 1064}
+      - {file: wp-content/plugins/updraftplus/class-updraftplus.php, class: UpdraftPlus, domain: updraftplus, lines: 6978}
+      - {file: wp-content/plugins/wordfence/lib/wordfenceClass.php, class: wordfence, domain: wordfence, lines: 10033}
+      - {file: wp-content/plugins/wp-super-cache/wp-cache-phase2.php, domain: wp-super-cache, lines: 3968}
+      - {file: wp-content/plugins/wp-file-manager/file_folder_manager.php, class: mk_file_folder_manager, domain: wp-file-manager, lines: 2077}
+      - {file: wp-content/plugins/cookie-notice/cookie-notice.php, class: Cookie_Notice, domain: cookie-notice, lines: 3069}
+      - {file: wp-content/plugins/jetpack/class.jetpack.php, class: Jetpack, domain: jetpack, lines: 6733}
+    # Notices WordPress raises itself: `since` is the first release that
+    # raises the kind; the line is that of trigger_error() in
+    # wp_trigger_error(), by release series (checked for every release the
+    # stack lists).
+    core:
+      file: wp-includes/functions.php
+      lines: {"6.4": 6031, "6.5": 6078, "6.6": 6085, "6.7": 6114, "6.8": 6121, "6.9": 6131, "7.0": 6170}
+      kinds: {wp_textdomain: "6.7", wp_deprecated_function: "6.4"}
+    # Deprecated functions plugins still call (wp-includes/deprecated.php).
+    deprecated:
+      - {fn: get_page_by_title, since: 6.2.0, use: WP_Query}
+      - {fn: print_emoji_styles, since: 6.4.0, use: wp_enqueue_emoji_styles}
+      - {fn: print_embed_styles, since: 6.4.0, use: wp_enqueue_embed_styles}
+      - {fn: wp_make_content_images_responsive, since: 5.5.0, use: wp_filter_content_tags()}
+      - {fn: wp_no_robots, since: 5.7.0, use: wp_robots_no_robots()}
+      - {fn: wp_img_tag_add_loading_attr, since: 6.3.0, use: wp_img_tag_add_loading_optimization_attrs()}
+
+  joomla:
+    # Joomla 4+ hands errors to Symfony's ErrorHandler.
+    framework_major: 3
+    # Global configuration "Error Reporting" (includes/framework.php):
+    # simple = E_ERROR|E_WARNING|E_PARSE, maximum = E_ALL, default = php.ini
+    # (production: E_ALL & ~E_DEPRECATED & ~E_STRICT).
+    modes:
+      - {setting: simple, display: app, levels: [error, warning], weight: 2}
+      - {setting: maximum, display: app, levels: [error, warning, notice, deprecated], weight: 1}
+      - {setting: default, display: ini, levels: [error, warning, notice], weight: 1}
+      - {setting: none, display: off, levels: [], weight: 6}
+      - {setting: default, display: off, levels: [error, warning, notice], weight: 6}
+    blank_boots: false
+    words:
+      key: [option, view, layout, Itemid, id, catid, limitstart, format, task, lang, HTTP_REFERER]
+      var: [item, params, list, html, attribs, menu, active, results]
+      prop: [id, title, alias, params, catid, language, link, introtext]
+    sources:
+      - {file: plugins/system/sef/sef.php, class: PlgSystemSef, lines: 260}
+      - {file: plugins/system/cache/cache.php, class: PlgSystemCache, lines: 252}
+      - {file: libraries/src/Router/SiteRouter.php, class: 'Joomla\CMS\Router\SiteRouter', lines: 827}
+      - {file: plugins/content/emailcloak/emailcloak.php, class: PlgContentEmailcloak, lines: 502, place: body}
+      - {file: components/com_content/models/article.php, class: ContentModelArticle, lines: 385, place: body}
+      - {file: components/com_content/models/category.php, class: ContentModelCategory, lines: 494, place: body}
+      - {file: components/com_content/helpers/route.php, lines: 109, place: body}
+      - {file: components/com_content/views/article/view.html.php, class: ContentViewArticle, lines: 343, place: body}
+      - {file: modules/mod_articles_latest/helper.php, lines: 145, place: body}
+      - {file: modules/mod_articles_category/helper.php, lines: 551, place: body}
+      - {file: modules/mod_menu/helper.php, class: ModMenuHelper, lines: 237, place: body}
+    # Where running out of memory hits, on the pages that do.
+    fatal:
+      - {file: libraries/joomla/database/driver/mysqli.php, lines: 1039}
+      - {file: libraries/src/Document/HtmlDocument.php, lines: 808}
+    fatal_share: 0.08

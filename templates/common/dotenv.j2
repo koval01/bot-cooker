@@ -1,0 +1,29 @@
+{% set symfony = persona.stack == "symfony" %}
+{% if header %}
+# {{ persona.app_name }} — {{ persona.app_env }}
+
+{% endif %}
+{% for g in groups %}
+{% set fenced = symfony and "/" in g.name %}
+{% if fenced %}
+###> {{ g.name }} ###
+{% elif not loop.first and not symfony %}
+{% if style.sections == "blank_lines" %}
+
+{% elif style.sections == "comments" %}
+
+# {{ g.name|split("/")|last }}
+{% endif %}
+{% endif %}
+{% for l in g.lines %}
+{% if l.kind == "note" %}
+# {{ l.value }}
+{% else %}
+{{ "#" if l.kind == "disabled" }}{{ "export " if style.env_export }}{{ l.key }}{{ " = " if style.env_spaced else "=" }}{{ l.value|quote(style.env_quote) }}
+{% endif %}
+{% endfor %}
+{% if fenced %}
+###< {{ g.name }} ###
+
+{% endif %}
+{% endfor %}

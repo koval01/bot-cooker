@@ -1,0 +1,11 @@
+{% set meta = persona_seed % 5 < 3 and persona.stack != "wordpress" %}
+{% for u in urls %}
+  <url>
+    <loc>{{ request.base_url }}{{ u.path }}</loc>
+    <lastmod>{{ u.time|strftime("%Y-%m-%d" if persona_seed % 2 else "%Y-%m-%dT%H:%M:%S%:z", persona.tz_offset) }}</lastmod>
+{% if meta %}
+    <changefreq>{{ "daily" if u.n % 7 == 0 else ["weekly", "monthly"]|choice(persona_seed, "changefreq") }}</changefreq>
+    <priority>0.{{ 5 + u.n % 4 }}</priority>
+{% endif %}
+  </url>
+{% endfor %}

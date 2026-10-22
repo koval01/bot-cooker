@@ -1,0 +1,27 @@
+name: Feature request
+description: Suggest an improvement to the trap, its realism or its deployment.
+labels: [enhancement]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        bot-cooker is defensive only: it never connects out and never harms clients.
+        Requests for retaliation, exploits against scanners or tracking of people will be closed.
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+      description: What is missing or unrealistic today? A real-world reference (software, version, captured output) helps a lot.
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposal
+      description: What you would like to happen.
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered

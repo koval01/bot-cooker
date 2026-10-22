@@ -1,0 +1,19 @@
+{% macro q(n) %}{{ '"' ~ n ~ '"' if n != n|lower else n }}{% endmacro %}
+{% macro coltype(c) %}
+{%- set t = c.type|split(":") -%}
+{%- set nn = "" if c.null else " NOT NULL" -%}
+{%- if t[0] in ["pk", "bigint"] -%}bigint{{ nn }}
+{%- elif t[0] == "int" -%}integer{{ nn }}
+{%- elif t[0] == "str" -%}character varying({{ t[1] }}){{ nn }}
+{%- elif t[0] == "text" -%}text{{ nn }}
+{%- elif t[0] == "ts" -%}timestamp(0) with time zone{{ nn }}
+{%- elif t[0] == "bool" -%}boolean{{ nn }}
+{%- else -%}numeric(10,2){{ nn }}
+{%- endif -%}
+{% endmacro %}
+{% macro lit(cell) %}
+{%- if cell.kind == "null" -%}\N
+{%- elif cell.kind == "ts" -%}{{ cell.value|strftime("%Y-%m-%d %H:%M:%S+00") }}
+{%- else -%}{{ cell.value|sql("copy") }}
+{%- endif -%}
+{% endmacro %}

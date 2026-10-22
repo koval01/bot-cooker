@@ -1,0 +1,5 @@
+{# PHP's error_log lines (main.c php_error_cb, php_log_err) for the faults of the persona's code. #}
+{% for e in events if php %}
+{% set f = php[e.pick % php|length] %}
+[{{ e.t|strftime("%d-%b-%Y %H:%M:%S UTC") }}] PHP {{ f.label }}:  {{ f.message }} in {{ f.file }} on line {{ f.line }}
+{% endfor %}

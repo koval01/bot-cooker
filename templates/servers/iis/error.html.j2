@@ -1,0 +1,32 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1"/>
+{% if status == 404 %}
+<title>404 - File or directory not found.</title>
+{% elif status == 405 %}
+<title>405 - HTTP verb used to access this page is not allowed.</title>
+{% else %}
+<title>{{ status }} - {{ reason }}</title>
+{% endif %}
+</head>
+<body>
+<div id="header"><h1>Server Error</h1></div>
+<div id="content">
+ <div class="content-container"><fieldset>
+{% if status == 404 %}
+  <h2>404 - File or directory not found.</h2>
+  <h3>The resource you are looking for might have been removed, had its name changed, or is temporarily unavailable.</h3>
+{% elif status == 405 %}
+  <h2>405 - HTTP verb used to access this page is not allowed.</h2>
+  <h3>The page you are looking for cannot be displayed because an invalid method (HTTP verb) was used to attempt access.</h3>
+{% elif status == 403 %}
+  <h2>403 - Forbidden: Access is denied.</h2>
+  <h3>You do not have permission to view this directory or page using the credentials that you supplied.</h3>
+{% else %}
+  <h2>{{ status }} - {{ reason }}</h2>
+{% endif %}
+ </fieldset></div>
+</div>
+</body>
+</html>

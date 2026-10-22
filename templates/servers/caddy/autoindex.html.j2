@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>{{ dir }}</title>
+		<meta charset="utf-8">
+		<meta name="color-scheme" content="light dark">
+	</head>
+	<body>
+		<header>
+			<h1>{{ dir }}</h1>
+		</header>
+		<main>
+			<table>
+				<thead><tr><th>Name</th><th>Size</th><th>Modified</th></tr></thead>
+				<tbody>
+{% for e in entries %}
+				<tr class="file"><td><a href="./{{ e.name }}{{ "/" if e.dir }}"><span class="name">{{ e.name }}{{ "/" if e.dir }}</span></a></td><td data-order="{{ -1 if e.dir else e.size }}">{% if e.dir %}&mdash;{% else %}{{ e.size|human_size("kib") }}{% endif %}</td><td class="timestamp"><time datetime="{{ e.mtime|strftime("%Y-%m-%dT%H:%M:%SZ") }}">{{ e.mtime|strftime("%m/%d/%Y %I:%M:%S %p") }}</time></td></tr>
+{% endfor %}
+				</tbody>
+			</table>
+		</main>
+	</body>
+</html>

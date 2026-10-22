@@ -1,0 +1,39 @@
+{% set adapter = "postgresql" if persona.db.engine == "postgres" else "mysql2" %}
+{% set app = persona.slug|split("-")|first %}
+{% if persona_seed % 2 %}
+# {{ "PostgreSQL. Versions 9.3 and up are supported." if adapter == "postgresql" else "MySQL. Versions 5.5.8 and up are supported." }}
+#
+{% endif %}
+default: &default
+  adapter: {{ adapter }}
+  encoding: {{ "unicode" if adapter == "postgresql" else "utf8mb4" }}
+  # For details on connection pooling, see Rails configuration guide
+  # https://guides.rubyonrails.org/configuring.html#database-pooling
+  pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
+{% if adapter == "mysql2" %}
+  username: {{ persona.db.user }}
+  socket: /var/run/mysqld/mysqld.sock
+{% endif %}
+
+development:
+  <<: *default
+  database: {{ app }}_development
+
+test:
+  <<: *default
+  database: {{ app }}_test
+
+production:
+  <<: *default
+  database: {{ persona.db.name }}
+  username: {{ persona.db.user }}
+{% if persona_seed % 3 == 0 %}
+  password: <%= ENV["{{ app|upper }}_DATABASE_PASSWORD"] %>
+  # password: {{ secret.get("db_password") }}
+{% else %}
+  password: {{ secret.get("db_password") }}
+{% endif %}
+  host: {{ persona.db.host }}
+{% if note %}
+  # {{ note }}
+{% endif %}

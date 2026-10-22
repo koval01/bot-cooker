@@ -1,0 +1,40 @@
+# What internet scanners request, as patterns built from parts. The access
+# logs of every instance are full of this noise, like any real box, but no
+# two instances get the same sequence or even the same mix.
+
+patterns:
+  - {weight: 10, path: "/{dir}.env"}
+  - {weight: 4, path: "/{dir}.env.{env_suffix}"}
+  - {weight: 5, path: "/.git/{git_file}"}
+  - {weight: 6, path: "/wp-content/plugins/{plugin}/readme.txt"}
+  - {weight: 4, path: "/{wp_dir}wp-includes/wlwmanifest.xml"}
+  - {weight: 5, path: "/{wp_dir}wp-login.php"}
+  - {weight: 3, path: "/xmlrpc.php"}
+  - {weight: 6, path: "/{shell}.php"}
+  - {weight: 3, path: "/{admin}/"}
+  - {weight: 3, path: "/vendor/phpunit/phpunit/src/Util/PHP/eval-stdin.php"}
+  - {weight: 2, path: "/cgi-bin/{cgi}"}
+  - {weight: 3, path: "/actuator/{actuator}"}
+  - {weight: 2, path: "/{config_file}"}
+  - {weight: 2, path: "/.aws/credentials"}
+  - {weight: 2, path: "/server-status"}
+  - {weight: 2, path: "/.DS_Store"}
+  - {weight: 2, path: "/{device_path}"}
+  - {weight: 2, path: "/{api_probe}"}
+  - {weight: 1, path: "/{backup_name}.{backup_ext}"}
+
+parts:
+  dir: ["", "", "", "api/", "app/", "backend/", "laravel/", "admin/", "public/", "v1/", "server/", "core/", "src/", "web/", "new/", "old/", "dev/", "staging/", "crm/", "shop/"]
+  env_suffix: [bak, old, save, local, production, prod, dev, example, backup, swp]
+  git_file: [config, HEAD, index, logs/HEAD, ORIG_HEAD, FETCH_HEAD, description]
+  plugin: [revslider, wp-file-manager, elementor, contact-form-7, woocommerce, duplicator, wp-super-cache, akismet, litespeed-cache, wpforms-lite, js_composer, really-simple-ssl, ultimate-member, backup-guard]
+  wp_dir: ["", "", "", "wp/", "blog/", "wordpress/", "site/", "cms/", "test/", "2019/", "2020/", "shop/"]
+  shell: [wso, shell, alfa, alfacgiapi, 0x, up, upload, cmd, sx, lv, tmp, wp-blog, about, admin, xmrlpc, inputs, chosen, wp-conflg, radio, ws, mini, class, gecko, lock360]
+  admin: [admin, administrator, phpmyadmin, pma, myadmin, dbadmin, manager, console, panel, cpanel, adminer, webadmin, login]
+  cgi: [luci, test.cgi, admin.cgi, php, bin/sh, config.exp]
+  actuator: [health, env, heapdump, mappings, configprops, gateway/routes]
+  config_file: [config.json, config.yml, config.php.bak, settings.json, credentials.json, secrets.yml, database.yml, appsettings.json, .npmrc, docker-compose.yml, web.config, phpinfo.php, info.php]
+  device_path: [HNAP1, boaform/admin/formLogin, GponForm/diag_Form, owa/auth/logon.aspx, remote/login, global-protect/login.esp, sslvpn_logon.shtml, solr/admin/info/system, console/login/LoginForm.jsp, manager/html]
+  api_probe: [api/v1/pods, v2/_catalog, api/jsonws/invoke, graphql, api/swagger.json, swagger-ui.html, telescope/requests, _ignition/execute-solution, api/v1/users]
+  backup_name: [backup, db, database, dump, site, www, wwwroot, html, data, latest, old]
+  backup_ext: [zip, tar.gz, sql, sql.gz, rar, 7z, bak]

@@ -1,0 +1,19 @@
+{% import "sql/mssql/macros.j2" as m %}
+{% set pk = (table.columns|selectattr("type", "eq", "pk")|list + [none])[0] %}
+/****** Object:  Table [dbo].[{{ table.name }}]    Script Date: {{ epochs.cfg_anchor|strftime("%-m/%-d/%Y %-I:%M:%S %p", persona.tz_offset) }} ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[{{ table.name }}](
+{% for c in table.columns %}
+	[{{ c.name }}] {{ m.coltype(c) }}{{ "," if not loop.last or pk }}
+{% endfor %}
+{% if pk %}
+ CONSTRAINT [PK_{{ table.name }}] PRIMARY KEY CLUSTERED 
+(
+	[{{ pk.name }}] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+{% endif %}
+) ON [PRIMARY]{{ " TEXTIMAGE_ON [PRIMARY]" if table.columns|selectattr("type", "eq", "text")|list }}
+GO

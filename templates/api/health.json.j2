@@ -1,0 +1,1 @@
+{{ {"status": ["ok", "UP", "healthy"]|choice(persona_seed, "health"), "uptime": epochs.log_anchor % 900000, "checks": {"db": "up", "cache": "up" if persona.cache else "n/a"}}|json(api_json) }}

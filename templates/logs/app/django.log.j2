@@ -1,0 +1,15 @@
+{% set style = persona_seed % 3 %}
+{% for e in events %}
+{% set ts = e.t|strftime("%Y-%m-%d %H:%M:%S", persona.tz_offset) ~ "," ~ "%03d"|format(e.micros // 1000) %}
+{% if style == 0 %}
+{% if e.status >= 400 %}
+{{ ts }} WARNING django.request {{ "Not Found" if e.status == 404 else ("Unauthorized" if e.status == 401 else "Forbidden") }}: {{ e.path }}
+{% else %}
+{{ ts }} INFO django.server "{{ e.method }} {{ e.path }} HTTP/1.1" {{ e.status }} {{ e.bytes }}
+{% endif %}
+{% elif style == 1 %}
+[{{ e.t|strftime("%Y-%m-%d %H:%M:%S %z", persona.tz_offset) }}] [{{ e.pid }}] [{{ "WARNING" if e.status >= 400 else "INFO" }}] {{ e.ip }} - "{{ e.method }} {{ e.path }} HTTP/1.1" {{ e.status }} {{ e.bytes }}
+{% else %}
+{{ {"timestamp": e.t|strftime("%Y-%m-%dT%H:%M:%S", persona.tz_offset) ~ "." ~ "%03d"|format(e.micros // 1000) ~ e.t|strftime("%:z", persona.tz_offset), "level": "WARNING" if e.status >= 400 else "INFO", "logger": "django.request" if e.status >= 400 else "django.server", "message": e.method ~ " " ~ e.path, "status_code": e.status, "duration_ms": e.ms}|json("python") }}
+{% endif %}
+{% endfor %}

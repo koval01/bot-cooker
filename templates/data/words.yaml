@@ -1,0 +1,183 @@
+# Vocabulary the persona and the world draw from. Broad on purpose: two
+# instances should rarely share a company name, staff list or site wording.
+
+name_heads:
+  - "north"
+  - "blue"
+  - "silver"
+  - "bright"
+  - "apex"
+  - "cedar"
+  - "harbor"
+  - "iron"
+  - "maple"
+  - "nova"
+  - "orbit"
+  - "pine"
+  - "quartz"
+  - "river"
+  - "summit"
+  - "terra"
+  - "urban"
+  - "vector"
+  - "willow"
+  - "zenith"
+  - "amber"
+  - "beacon"
+  - "cobalt"
+  - "delta"
+  - "ember"
+  - "falcon"
+  - "granite"
+  - "hollow"
+  - "indigo"
+  - "juniper"
+  - "kestrel"
+  - "lumen"
+  - "meadow"
+  - "nimbus"
+  - "oak"
+  - "prairie"
+  - "quill"
+  - "redwood"
+  - "sable"
+  - "tidal"
+  - "upland"
+  - "vale"
+  - "west"
+  - "yonder"
+  - "alder"
+  - "birch"
+  - "copper"
+  - "drift"
+  - "elm"
+  - "fjord"
+  - "glacier"
+  - "heron"
+  - "isle"
+  - "jade"
+  - "keel"
+  - "larch"
+  - "moss"
+  - "nettle"
+  - "onyx"
+  - "pebble"
+
+name_tails:
+  - "wind"
+  - "peak"
+  - "stone"
+  - "line"
+  - "works"
+  - "field"
+  - "gate"
+  - "bridge"
+  - "point"
+  - "path"
+  - "forge"
+  - "craft"
+  - "loop"
+  - "nest"
+  - "wave"
+  - "ridge"
+  - "brook"
+  - "light"
+  - "yard"
+  - "port"
+  - "shore"
+  - "mark"
+  - "well"
+  - "haven"
+  - "ford"
+  - "crest"
+  - "spring"
+  - "dale"
+  - "grove"
+  - "bay"
+
+tlds:
+  - "com"
+  - "com"
+  - "com"
+  - "io"
+  - "co"
+  - "net"
+  - "de"
+  - "eu"
+  - "co.uk"
+  - "org"
+  - "nl"
+  - "app"
+  - "ca"
+  - "com.au"
+
+internal_host_words:
+  - "db"
+  - "sql"
+  - "data"
+  - "store"
+  - "pg"
+  - "mysql"
+  - "rds"
+  - "primary"
+
+# Commit messages are built from parts; each team has its own convention
+# (conventional commits, ticket prefixes, capitalisation).
+commit_verbs: [fix, add, update, remove, refactor, bump, rename, move, handle, cache, validate, log, clean up, revert, tweak, migrate, extract, simplify, guard, retry]
+commit_objects: [auth middleware, checkout flow, invoice export, password reset, api pagination, cron schedule, mail templates, upload limits, search index, session timeout, rate limiting, admin dashboard, webhook handler, db indexes, cache keys, csv import, error pages, healthcheck, ci pipeline, docker image, dependencies, translations, timezone handling, report query, user roles, sitemap, seo meta tags]
+commit_tails: ["", "", "", "", "for {resource}", "in {resource} api", on staging, after deploy, for mobile, (again), edge case, null check, typo, per review, for large accounts]
+commit_types: [feat, fix, chore, refactor, perf, docs, test, ci, build]
+
+# Generic words mixed into page text and slugs.
+filler: [our, team, customers, new, process, update, service, quality, support, reliable,
+  simple, faster, improved, partners, launch, region, available, options, details, guide,
+  how, to, the, with, for, and, in, your, we, more, today, plan, change, review, notes,
+  policy, pricing, local, global, data]
+
+# Industries shape company names, tables, API resources and site wording.
+industries:
+  - id: logistics
+    suffixes: [Logistics, Freight, Cargo, Shipping, Transport]
+    resources: [shipments, carriers, warehouses, routes, drivers, invoices]
+    vocabulary: [tracking, fleet, depot, manifest, customs, pallets, dispatch, tariffs, lanes, pickup, delivery, freight-rates, terminals, hubs]
+    sells_online: false
+  - id: retail
+    suffixes: [Store, Market, Goods, Outfitters, Supply, Shop]
+    resources: [orders, products, customers, carts, coupons, returns]
+    vocabulary: [catalog, collections, sale, new-arrivals, gift-cards, brands, size-guide, shipping, lookbook, clearance, accessories, outlet]
+    sells_online: true
+  - id: health
+    suffixes: [Health, Clinic, Care, Medical, Wellness]
+    resources: [patients, appointments, practitioners, prescriptions, claims]
+    vocabulary: [services, locations, doctors, insurance, telehealth, pharmacy, lab-results, billing, careers, patient-portal, forms, faq]
+    sells_online: false
+  - id: saas
+    suffixes: [Labs, Cloud, Systems, Software, IO, HQ]
+    resources: [accounts, workspaces, subscriptions, invoices, api_keys, events]
+    vocabulary: [docs, changelog, integrations, pricing, status, guides, sdk, webhooks, security, roadmap, templates, release-notes, api-reference]
+    sells_online: true
+  - id: media
+    suffixes: [Media, Press, News, Studio, Publishing]
+    resources: [articles, authors, subscribers, comments, issues]
+    vocabulary: [politics, business, culture, opinion, sports, science, archive, podcasts, newsletters, events, photo, video, editorials]
+    sells_online: false
+  - id: finance
+    suffixes: [Capital, Finance, Partners, Advisors, Credit]
+    resources: [clients, accounts, transactions, statements, loans]
+    vocabulary: [investors, reports, disclosures, rates, calculators, insights, governance, annual-report, esg, press, compliance, markets]
+    sells_online: false
+  - id: education
+    suffixes: [Academy, Institute, Learning, School, College]
+    resources: [students, courses, enrollments, grades, instructors]
+    vocabulary: [programs, admissions, campus, library, faculty, research, alumni, calendar, tuition, scholarships, e-learning, syllabus]
+    sells_online: false
+  - id: travel
+    suffixes: [Travel, Tours, Trips, Voyages, Getaways]
+    resources: [bookings, itineraries, travellers, hotels, payments]
+    vocabulary: [destinations, deals, packages, cruises, guides, visas, hotels, flights, reviews, gallery, blog, last-minute]
+    sells_online: true
+  - id: manufacturing
+    suffixes: [Industries, Manufacturing, Engineering, Components, Works]
+    resources: [parts, suppliers, work_orders, inventory, quotes]
+    vocabulary: [products, datasheets, certifications, distributors, quality, downloads, manuals, cad-files, rfq, plants, sustainability]
+    sells_online: false

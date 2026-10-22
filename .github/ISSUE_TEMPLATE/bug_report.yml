@@ -1,0 +1,48 @@
+name: Bug report
+description: Something does not work as documented.
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for the report. Do not paste master keys, admin tokens or your trap hostnames.
+        If the problem lets someone tell a trap from a real server, report it privately instead (see SECURITY.md).
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened
+      description: What you did, what you expected, what you saw instead.
+    validations:
+      required: true
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: How to reproduce
+      description: Commands, config snippet (without secrets), requests.
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Version
+      description: Output of `bot-cooker --version`, or the image tag.
+    validations:
+      required: true
+  - type: dropdown
+    id: deployment
+    attributes:
+      label: Deployment
+      options:
+        - One-line installer (Docker + Caddy)
+        - Docker Compose by hand
+        - Binary on Linux
+        - Windows service
+        - Other
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs
+      description: Relevant log lines (`docker logs bot-cooker-bot-cooker-1` or the service log).
+      render: text

@@ -1,0 +1,213 @@
+# Database schemas per stack, as a dump would show them. Column types:
+# pk, bigint, int, str:N, text, ts, bool, money. `src` says where a users
+# column takes its value from (see render/profiles/sql.rs). Tables with
+# `rows: users` are streamed; `rows: resource` holds business records;
+# literal rows may use inline templates (`{{ founded }}`, `{{ i }}` = row
+# number from 0, plus the usual context). `{prefix}` is the persona's table
+# prefix. `naming: true` converts column names to the stack's convention.
+
+default:
+  naming: true
+  tables:
+    - name: users
+      rows: users
+      columns:
+        - [id, pk, false, id]
+        - [email, "str:180", false, email]
+        - [role, "str:255", false, role]
+        - [password, "str:255", false, hash]
+        - [first_name, "str:100", true, first]
+        - [last_name, "str:100", true, last]
+        - [is_active, bool, false, active]
+        - [created_at, ts, false, created]
+        - [updated_at, ts, true, updated]
+
+laravel:
+  tables:
+    - name: migrations
+      columns: [[id, pk, false], [migration, "str:255", false], [batch, int, false]]
+      rows:
+        - [1, 2014_10_12_000000_create_users_table, 1]
+        - [2, 2014_10_12_100000_create_password_reset_tokens_table, 1]
+        - [3, 2019_08_19_000000_create_failed_jobs_table, 1]
+        - [4, 2019_12_14_000001_create_personal_access_tokens_table, 1]
+        - [5, "{{ (founded + 86400 * 40)|strftime('%Y_%m_%d_%H%M%S') }}_create_jobs_table", 2]
+        - [6, "{{ (founded + 86400 * 95)|strftime('%Y_%m_%d_%H%M%S') }}_add_two_factor_columns_to_users_table", 3]
+    - name: users
+      rows: users
+      columns:
+        - [id, pk, false, id]
+        - [name, "str:255", false, name]
+        - [email, "str:255", false, email]
+        - [email_verified_at, ts, true, verified]
+        - [password, "str:255", false, hash]
+        - [remember_token, "str:100", true, token]
+        - [created_at, ts, true, created]
+        - [updated_at, ts, true, updated]
+    - name: password_reset_tokens
+      columns: [[email, "str:255", false], [token, "str:255", false], [created_at, ts, true]]
+      rows: []
+    - name: personal_access_tokens
+      columns: [[id, pk, false], [tokenable_type, "str:255", false], [tokenable_id, bigint, false], [name, "str:255", false], [token, "str:64", false], [abilities, text, true], [last_used_at, ts, true], [created_at, ts, true]]
+      rows:
+        - [1, "App\\Models\\User", 1, "{{ ['api', 'cli', 'zapier', 'deploy']|choice(persona_seed, 'pat') }}", "{{ secret.hex('pat-1', 64) }}", '["*"]', "{{ epochs.cfg_anchor - 86400 * 3 }}", "{{ founded + 86400 * 120 }}"]
+
+symfony:
+  extends: default
+  tables:
+    - name: doctrine_migration_versions
+      columns: [[version, "str:191", false], [executed_at, ts, true], [execution_time, int, true]]
+      generate: {count: "3..12", row: ["DoctrineMigrations\\Version{{ (founded + 86400 * 9 * i)|strftime('%Y%m%d%H%M%S') }}", "{{ founded + 86400 * 9 * i }}", "{{ tok.int('mig' ~ i, 20, 900) }}"]}
+
+django:
+  tables:
+    - name: auth_user
+      rows: users
+      columns:
+        - [id, pk, false, id]
+        - [password, "str:128", false, hash]
+        - [last_login, ts, true, last_login]
+        - [is_superuser, bool, false, superuser]
+        - [username, "str:150", false, login]
+        - [first_name, "str:150", false, first]
+        - [last_name, "str:150", false, last]
+        - [email, "str:254", false, email]
+        - [is_staff, bool, false, staff]
+        - [is_active, bool, false, active]
+        - [date_joined, ts, false, created]
+    - name: django_migrations
+      columns: [[id, pk, false], [app, "str:255", false], [name, "str:255", false], [applied, ts, false]]
+      rows:
+        - [1, contenttypes, 0001_initial, "{{ founded }}"]
+        - [2, auth, 0001_initial, "{{ founded + 3 }}"]
+        - [3, admin, 0001_initial, "{{ founded + 5 }}"]
+        - [4, sessions, 0001_initial, "{{ founded + 7 }}"]
+        - [5, auth, 0012_alter_user_first_name_max_length, "{{ founded + 9 }}"]
+        - [6, "{{ persona.slug|split('-')|first }}", 0001_initial, "{{ founded + 30 }}"]
+
+rails:
+  tables:
+    - name: ar_internal_metadata
+      columns: [[key, "str:255", false], [value, "str:255", true], [created_at, ts, false], [updated_at, ts, false]]
+      rows:
+        - [environment, production, "{{ founded }}", "{{ founded }}"]
+    - name: schema_migrations
+      columns: [[version, "str:255", false]]
+      generate: {count: "8..30", row: ["{{ (founded + 86400 * 11 * i + 3600 * (i % 9))|strftime('%Y%m%d%H%M%S') }}"]}
+    - name: users
+      rows: users
+      columns:
+        - [id, pk, false, id]
+        - [email, "str:255", false, email]
+        - [encrypted_password, "str:255", false, hash]
+        - [reset_password_token, "str:255", true, "null"]
+        - [reset_password_sent_at, ts, true, "null"]
+        - [remember_created_at, ts, true, "null"]
+        - [sign_in_count, int, false, logins]
+        - [current_sign_in_at, ts, true, last_login]
+        - [created_at, ts, false, created]
+        - [updated_at, ts, false, updated]
+
+express:
+  extends: default
+  tables:
+    - name: "{{ ['SequelizeMeta', 'knex_migrations']|choice(persona_seed, 'node-migrations') }}"
+      columns: [[name, "str:255", false]]
+      generate: {count: "3..15", row: ["{{ (founded + 86400 * 7 * i)|strftime('%Y%m%d%H%M%S') }}-{{ ['create', 'add', 'alter']|choice(persona_seed + i, 'verb') }}-{{ site.api_resources|choice(persona_seed + i, 'res') }}.js"]}
+
+spring_boot:
+  extends: default
+  tables:
+    - name: flyway_schema_history
+      columns: [[installed_rank, int, false], [version, "str:50", true], [description, "str:200", false], [script, "str:1000", false], [success, bool, false]]
+      generate: {count: "4..14", row: ["{{ i + 1 }}", "{{ i + 1 }}", "{{ ['init', 'users', 'orders', 'indexes', 'audit', 'settings', 'roles']|choice(persona_seed + i, 'flyway') }}", "V{{ i + 1 }}__{{ ['init', 'users', 'orders', 'indexes', 'audit', 'settings', 'roles']|choice(persona_seed + i, 'flyway') }}.sql", "true"]}
+
+asp_net:
+  tables:
+    - name: __EFMigrationsHistory
+      columns: [[MigrationId, "str:150", false], [ProductVersion, "str:32", false]]
+      generate: {count: "2..9", row: ["{{ (founded + 86400 * 13 * i)|strftime('%Y%m%d%H%M%S') }}_{{ ['Initial', 'AddIdentity', 'AddOrders', 'AddAudit', 'Indexes', 'Settings']|choice(persona_seed + i, 'ef') }}", "{{ v.framework }}"]}
+    - name: AspNetUsers
+      rows: users
+      columns:
+        - [Id, "str:450", false, uuid]
+        - [UserName, "str:256", true, email]
+        - [NormalizedUserName, "str:256", true, email_upper]
+        - [Email, "str:256", true, email]
+        - [NormalizedEmail, "str:256", true, email_upper]
+        - [EmailConfirmed, bool, false, active]
+        - [PasswordHash, text, true, hash]
+        - [SecurityStamp, text, true, stamp]
+        - [ConcurrencyStamp, text, true, uuid2]
+        - [PhoneNumber, text, true, "null"]
+        - [LockoutEnabled, bool, false, "true"]
+        - [AccessFailedCount, int, false, zero]
+
+wordpress:
+  cms: true
+  tables:
+    - name: "{prefix}options"
+      columns: [[option_id, pk, false], [option_name, "str:191", false], [option_value, text, false], [autoload, "str:20", false]]
+      rows:
+        - [1, siteurl, "https://{{ persona.domain }}", "yes"]
+        - [2, home, "https://{{ persona.domain }}", "yes"]
+        - [3, blogname, "{{ persona.company }}", "yes"]
+        - [4, blogdescription, "{{ ['Just another WordPress site', tagline]|choice(persona_seed, 'wp-desc') }}", "yes"]
+        - [5, admin_email, "{{ persona.staff[0].email }}", "yes"]
+        - [6, permalink_structure, "{{ ['/%postname%/', '/%year%/%monthnum%/%postname%/', '/blog/%postname%/']|choice(persona_seed, 'permalink') }}", "yes"]
+        - [7, template, "{{ assets.picks.wp_theme }}", "yes"]
+        - [8, timezone_string, "{{ persona.tz_name }}", "yes"]
+    - name: "{prefix}users"
+      rows: users
+      columns:
+        - [ID, pk, false, id]
+        - [user_login, "str:60", false, login]
+        - [user_pass, "str:255", false, hash]
+        - [user_nicename, "str:50", false, login]
+        - [user_email, "str:100", false, email]
+        - [user_url, "str:100", false, empty]
+        - [user_registered, ts, false, created]
+        - [user_activation_key, "str:255", false, empty]
+        - [user_status, int, false, zero]
+        - [display_name, "str:250", false, name]
+
+joomla:
+  cms: true
+  tables:
+    - name: "{prefix}users"
+      rows: users
+      columns:
+        - [id, pk, false, id]
+        - [name, "str:400", false, name]
+        - [username, "str:150", false, login]
+        - [email, "str:100", false, email]
+        - [password, "str:100", false, hash]
+        - [block, int, false, blocked]
+        - [sendEmail, int, true, zero]
+        - [registerDate, ts, false, created]
+        - [lastvisitDate, ts, true, last_login]
+        - [activation, "str:100", false, empty]
+        - [params, text, false, params]
+    - name: "{prefix}user_usergroup_map"
+      columns: [[user_id, int, false], [group_id, int, false]]
+      generate: {count: staff, row: ["{{ i + 1 }}", "{{ 8 if i == 0 else 6 }}"]}
+
+drupal:
+  cms: true
+  tables:
+    - name: users_field_data
+      rows: users
+      columns:
+        - [uid, pk, false, id]
+        - [langcode, "str:12", false, lang]
+        - [name, "str:60", false, login]
+        - [pass, "str:255", true, hash]
+        - [mail, "str:254", true, email]
+        - [timezone, "str:32", true, tz]
+        - [status, int, true, active_int]
+        - [created, bigint, false, created_unix]
+        - [changed, bigint, true, updated_unix]
+        - [access, bigint, false, access_unix]
+    - name: users
+      columns: [[uid, int, false], [uuid, "str:128", false], [langcode, "str:12", false]]
+      generate: {count: staff, row: ["{{ i }}", "{{ tok.uuid('drupal-user-' ~ i) }}", "en"]}

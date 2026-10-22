@@ -1,0 +1,26 @@
+{% set field = ["email", "username", "login", "_username"]|choice(persona_seed, "login-field") %}
+{% set csrf_field = "_csrf" %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{ ["Login", "Sign in", "Log in"]|choice(persona_seed, "login-title") }} - {{ persona.app_name }}</title>
+</head>
+<body class="{{ ["antialiased", "login-page", "bg-light", "auth"]|choice(persona_seed, "login-body") }}">
+<div class="{{ ["container", "auth-card", "login-box", "min-h-screen flex items-center justify-center"]|choice(persona_seed, "login-wrap") }}">
+<h1>{{ persona.company }}</h1>
+{% if failed %}
+<div class="alert alert-danger" role="alert">Invalid username or password</div>
+{% endif %}
+<form method="POST" action="{{ action }}">
+<input type="hidden" name="{{ csrf_field }}" value="{{ tok.b64url("csrf", 36) }}">
+<label for="{{ field }}">{{ "Email" if "mail" in field else "Username" }}</label>
+<input id="{{ field }}" type="{{ "email" if "mail" in field else "text" }}" name="{{ field }}" value="" required autofocus>
+<label for="password">Password</label>
+<input id="password" type="password" name="password" required autocomplete="current-password">
+<button type="submit">{{ ["Log in", "Sign in", "Login", "Continue"]|choice(persona_seed, "login-btn") }}</button>
+</form>
+</div>
+</body>
+</html>

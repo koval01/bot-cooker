@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?>
+{% if persona.stack == "wordpress" %}
+<?xml-stylesheet type="text/xsl" href="{{ request.base_url }}/wp-sitemap.xsl" ?>
+{% endif %}
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"{{ ' xmlns:image="http://www.google.com/schemas/sitemap-image/1.1"' if persona_seed % 3 == 0 }}>

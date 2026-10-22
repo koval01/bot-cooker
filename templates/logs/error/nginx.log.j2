@@ -1,0 +1,17 @@
+{% for e in events %}
+{% set when = e.t|strftime("%Y/%m/%d %H:%M:%S", persona.tz_offset) %}
+{% set kind = e.pick % 7 %}
+{% if e.probe or kind < 2 %}
+{{ when }} [error] {{ e.pid }}#{{ e.pid }}: *{{ e.conn }} open() "{{ docroot }}{{ e.path }}" failed (2: No such file or directory), client: {{ e.ip }}, server: {{ persona.domain }}, request: "{{ e.method }} {{ e.path }} HTTP/1.1", host: "{{ request.host }}"
+{% elif kind == 2 %}
+{{ when }} [error] {{ e.pid }}#{{ e.pid }}: *{{ e.conn }} upstream timed out (110: Connection timed out) while reading response header from upstream, client: {{ e.ip }}, server: {{ persona.domain }}, request: "{{ e.method }} {{ e.path }} HTTP/1.1", upstream: "{{ "fastcgi://unix:/run/php/php" ~ v.runtime_short ~ "-fpm.sock" if persona.family == "php" else "http://127.0.0.1:" ~ [3000, 8000, 8080]|choice(persona_seed, "upstream-port") ~ e.path }}", host: "{{ request.host }}"
+{% elif kind == 3 %}
+{{ when }} [warn] {{ e.pid }}#{{ e.pid }}: *{{ e.conn }} a client request body is buffered to a temporary file /var/{{ "lib" if persona.distro == "ubuntu" else "cache" }}/nginx/client_temp/{{ "%010d"|format(e.conn * 7) }}, client: {{ e.ip }}, server: {{ persona.domain }}, request: "POST {{ site.login_path }} HTTP/1.1", host: "{{ request.host }}"
+{% elif kind == 4 %}
+{{ when }} [crit] {{ e.pid }}#{{ e.pid }}: *{{ e.conn }} SSL_do_handshake() failed (SSL: error:0A00006C:SSL routines::bad key share) while SSL handshaking, client: {{ e.ip }}, server: 0.0.0.0:443
+{% elif kind == 5 %}
+{{ when }} [error] {{ e.pid }}#{{ e.pid }}: *{{ e.conn }} access forbidden by rule, client: {{ e.ip }}, server: {{ persona.domain }}, request: "GET {{ e.path }} HTTP/1.1", host: "{{ request.host }}"
+{% else %}
+{{ when }} [info] {{ e.pid }}#{{ e.pid }}: *{{ e.conn }} client {{ e.ip }} closed keepalive connection
+{% endif %}
+{% endfor %}

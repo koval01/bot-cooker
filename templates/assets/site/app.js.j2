@@ -1,0 +1,4 @@
+{% set v = ["e", "t", "n", "o"]|choice(persona_seed, "js-var-" ~ name) %}
+{% set attr = ["data-toggle", "data-nav", "data-menu", "aria-controls"]|choice(persona_seed, "js-attr") %}
+{% set cls = ["is-open", "open", "active", "show"]|choice(persona_seed, "js-cls") %}
+(()=>{"use strict";const {{ v }}=document.querySelector('meta[name="csrf-token"]');document.querySelectorAll("[{{ attr }}]").forEach(r=>{r.addEventListener("click",a=>{const c=document.getElementById(r.getAttribute("{{ attr }}"));c&&(a.preventDefault(),c.classList.toggle("{{ cls }}"))})}),document.querySelectorAll("form[data-confirm]").forEach(r=>r.addEventListener("submit",a=>{confirm(r.dataset.confirm)||a.preventDefault()})),{{ v }}&&window.fetch&&(window.{{ ["appFetch", "request", "api", "http"]|choice(persona_seed, "js-fn") }}=(r,a={})=>fetch(r,{credentials:"same-origin",...a,headers:{"X-CSRF-TOKEN":{{ v }}.content,"X-Requested-With":"XMLHttpRequest",...a.headers||{}}}))})();

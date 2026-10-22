@@ -1,0 +1,23 @@
+# Bedrock-style WordPress keeps its configuration in .env.
+groups:
+  - name: database
+    vars:
+      - {key: DB_NAME, value: "{{ persona.db.name }}"}
+      - {key: DB_USER, value: "{{ persona.db.user }}"}
+      - {key: DB_PASSWORD, value: "{{ secret.get('db_password') }}"}
+      - {key: DB_HOST, value: "{{ persona.db.host }}", p: 0.7}
+      - {key: DB_PREFIX, value: "{{ persona.db.table_prefix }}", p: 0.6}
+      - {key: WP_ENV, value: production}
+      - {key: WP_HOME, value: "https://{{ persona.domain }}"}
+      - {key: WP_SITEURL, value: "${WP_HOME}/wp"}
+  - name: salts
+    vars:
+      - {key: AUTH_KEY, value: "{{ secret.salt('wp_AUTH_KEY', 64) }}"}
+      - {key: SECURE_AUTH_KEY, value: "{{ secret.salt('wp_SECURE_AUTH_KEY', 64) }}"}
+      - {key: LOGGED_IN_KEY, value: "{{ secret.salt('wp_LOGGED_IN_KEY', 64) }}"}
+      - {key: NONCE_KEY, value: "{{ secret.salt('wp_NONCE_KEY', 64) }}"}
+      - {key: AUTH_SALT, value: "{{ secret.salt('wp_AUTH_SALT', 64) }}"}
+      - {key: SECURE_AUTH_SALT, value: "{{ secret.salt('wp_SECURE_AUTH_SALT', 64) }}"}
+      - {key: LOGGED_IN_SALT, value: "{{ secret.salt('wp_LOGGED_IN_SALT', 64) }}"}
+      - {key: NONCE_SALT, value: "{{ secret.salt('wp_NONCE_SALT', 64) }}"}
+  - {name: misc, use: misc}

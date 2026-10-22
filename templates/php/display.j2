@@ -1,0 +1,5 @@
+{# PHP's display_errors output with html_errors on (main.c, php_error_cb). #}
+{% for e in errors %}
+<br />
+<b>{{ e.label }}</b>:  {{ e.message }} in <b>{{ e.file }}</b> on line <b>{{ e.line }}</b><br />
+{% endfor %}

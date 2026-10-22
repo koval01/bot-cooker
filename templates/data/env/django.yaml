@@ -1,0 +1,38 @@
+groups:
+  - name: django
+    vars:
+      - {key: DJANGO_SETTINGS_MODULE, value: "{{ persona.slug|split('-')|first }}.settings.{{ ['production', 'prod']|choice(persona_seed, 'dj-settings') }}"}
+      - {key: "{{ ['DJANGO_SECRET_KEY', 'SECRET_KEY']|choice(persona_seed, 'dj-secret-key') }}", value: "{{ ('django-insecure-' if persona_seed % 4 == 0 else '') ~ secret.symbolic('django_secret', 50) }}"}
+      - {key: DEBUG, value: "{{ 'True' if persona_seed % 9 == 0 else 'False' }}"}
+      - {key: ALLOWED_HOSTS, value: "{{ persona.domain }},www.{{ persona.domain }}"}
+      - {key: CSRF_TRUSTED_ORIGINS, value: "https://{{ persona.domain }},https://www.{{ persona.domain }}", p: 0.5}
+      - {key: TIME_ZONE, value: "{{ persona.tz_name }}", p: 0.3}
+  - name: database
+    vars:
+      - {key: DATABASE_URL, value: "{{ cfg.db_url|replace('postgresql://', 'postgres://') }}"}
+      - {key: CONN_MAX_AGE, value: "60", p: 0.3}
+  - name: celery
+    when: "{{ cfg.has_redis }}"
+    vars:
+      - {key: REDIS_URL, value: "{{ cfg.redis_url }}", p: 0.8}
+      - {key: CELERY_BROKER_URL, value: "{{ cfg.redis_url|replace('/0', '/1') }}", p: 0.7}
+  - name: email
+    vars:
+      - {key: EMAIL_HOST, value: "{{ persona.mail.host }}"}
+      - {key: EMAIL_PORT, value: "{{ persona.mail.port }}"}
+      - {key: EMAIL_HOST_USER, value: "{{ cfg.mail_user }}"}
+      - {key: EMAIL_HOST_PASSWORD, value: "{{ cfg.mail_password }}"}
+      - {key: EMAIL_USE_TLS, value: "True", p: 0.8}
+      - {key: DEFAULT_FROM_EMAIL, value: "{{ persona.mail.from }}"}
+  - name: storage
+    when: "{{ cfg.uses_aws }}"
+    vars:
+      - {key: AWS_ACCESS_KEY_ID, value: "{{ cfg.aws_key_id }}"}
+      - {key: AWS_SECRET_ACCESS_KEY, value: "{{ cfg.aws_secret }}"}
+      - {key: AWS_STORAGE_BUCKET_NAME, value: "{{ cfg.bucket }}"}
+      - {key: AWS_S3_REGION_NAME, value: "{{ cfg.region }}"}
+  - name: sentry
+    vars:
+      - {key: SENTRY_DSN, value: "{{ cfg.sentry_dsn }}", p: 0.5}
+  - {name: stripe, use: stripe, when: "{{ persona.industry.sells_online }}"}
+  - {name: misc, use: misc}

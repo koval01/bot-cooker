@@ -1,0 +1,24 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML 2.0//EN">
+<html><head>
+<title>{{ status }} {{ reason }}</title>
+</head><body>
+<h1>{{ reason }}</h1>
+{% if status == 403 %}
+<p>You don't have permission to access this resource.</p>
+{% elif status == 404 %}
+<p>The requested URL was not found on this server.</p>
+{% elif status == 405 %}
+<p>The requested method {{ method }} is not allowed for this URL.</p>
+{% elif status == 501 %}
+<p>{{ method }} not supported for current URL.<br />
+</p>
+{% else %}
+<p>The server encountered an internal error or
+misconfiguration and was unable to complete
+your request.</p>
+{% endif %}
+{% if "/" in (web.server_banner or "") %}
+<hr>
+<address>{{ web.server_banner }} Server at {{ request.server_name }} Port {{ request.port }}</address>
+{% endif %}
+</body></html>

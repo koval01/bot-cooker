@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en-gb" dir="ltr">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{{ status }} - {{ "Page not found" if status == 404 else reason }}</title>
+    <link href="{{ assets.files.css.href }}" rel="stylesheet">
+</head>
+<body class="site error_site">
+    <div class="outer">
+        <div class="container-header full-width">
+            <div class="brand"><a href="{{ request.base_url }}/">{{ persona.company }}</a></div>
+        </div>
+        <div class="container-component">
+            <h1 class="page-header">{{ "Page not found" if status == 404 else reason }}</h1>
+            <div class="card">
+                <div class="card-body">
+                    <p><strong>You may not be able to visit this page because of:</strong></p>
+                    <ul>
+                        <li>an <strong>out-of-date bookmark/favourite</strong></li>
+                        <li>a <strong>mistyped address</strong></li>
+                        <li>a search engine that has an <strong>out-of-date listing for this site</strong></li>
+                        <li>you have <strong>no access</strong> to this page</li>
+                    </ul>
+                    <p><a href="{{ request.base_url }}/" class="btn btn-secondary"><span class="icon-home" aria-hidden="true"></span> Home Page</a></p>
+                    <blockquote>
+                        <span class="badge bg-secondary">{{ status }}</span> {{ "Page not found" if status == 404 else reason }}
+                    </blockquote>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

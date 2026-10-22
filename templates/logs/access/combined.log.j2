@@ -1,0 +1,3 @@
+{% for e in events %}
+{{ e.ip }} - - [{{ e.t|strftime("%d/%b/%Y:%H:%M:%S %z", persona.tz_offset) }}] "{{ e.method }} {{ e.path }} HTTP/{{ ["1.1", "1.1", "1.1", "2.0"][e.pick % 4] }}" {{ e.status }} {{ e.bytes }} "{{ request.base_url ~ e.referer if e.referer else "-" }}" "{{ e.agent }}"
+{% endfor %}

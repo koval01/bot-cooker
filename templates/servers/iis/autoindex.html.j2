@@ -1,0 +1,3 @@
+<html><head><title>{{ request.server_name }} - {{ dir }}</title></head><body><H1>{{ request.server_name }} - {{ dir }}</H1><hr>
+
+<pre><A HREF="{{ parent }}">[To Parent Directory]</A><br><br>{% for e in entries %}{{ e.mtime|strftime("%m/%d/%Y %I:%M %p", persona.tz_offset)|rjust(20) }} {{ ("&lt;dir&gt;"|safe if e.dir else e.size)|rjust(12) }} <A HREF="{{ dir }}{{ e.name }}{{ "/" if e.dir }}">{{ e.name }}</A><br>{% endfor %}</pre><hr></body></html>

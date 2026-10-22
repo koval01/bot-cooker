@@ -1,0 +1,28 @@
+# Coverage-guided fuzzing with libFuzzer (needs a nightly toolchain):
+#
+#   rustup run nightly cargo fuzz run request_head
+#
+# The stable test suite fuzzes the whole request path as well (tests/fuzz.rs).
+[package]
+name = "bot-cooker-fuzz"
+version = "0.0.0"
+publish = false
+edition = "2024"
+
+[package.metadata]
+cargo-fuzz = true
+
+[dependencies]
+libfuzzer-sys = "0.4"
+bot-cooker = { path = ".." }
+
+[[bin]]
+name = "request_head"
+path = "fuzz_targets/request_head.rs"
+test = false
+doc = false
+bench = false
+
+# Not part of the main crate's build.
+[workspace]
+members = ["."]

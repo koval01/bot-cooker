@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+  <title>{{ persona.company }}</title>
+  <subtitle>{{ tagline }}</subtitle>
+  <link href="{{ request.base_url }}{{ request.path }}" rel="self"/>
+  <link href="{{ request.base_url }}/"/>
+  <id>{{ request.base_url }}/</id>
+  <updated>{{ posts[0].time|strftime("%Y-%m-%dT%H:%M:%SZ") }}</updated>
+{% for post in posts %}
+  <entry>
+    <title>{{ post.title }}</title>
+    <link href="{{ request.base_url }}{{ area }}{{ post.slug }}/"/>
+    <id>{{ request.base_url }}{{ area }}{{ post.slug }}/</id>
+    <updated>{{ post.time|strftime("%Y-%m-%dT%H:%M:%SZ") }}</updated>
+    <author><name>{{ post.author }}</name></author>
+    <summary>{{ post.summary }}</summary>
+  </entry>
+{% endfor %}
+</feed>

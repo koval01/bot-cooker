@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>{{ persona.app_name }}</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="csrf-param" content="authenticity_token" />
+<meta name="csrf-token" content="{{ tok.b64url("csrf", 86) }}" />
+
+    <link rel="stylesheet" href="{{ assets.files.css.href }}" data-turbo-track="reload" />
+    <script src="{{ assets.files.js.href }}" data-turbo-track="reload" defer="defer"></script>
+  </head>
+
+  <body>
+{% if failed %}
+    <p class="alert">Invalid Email or password.</p>
+{% endif %}
+    <h2>Log in</h2>
+
+<form class="new_user" id="new_user" action="{{ action }}" accept-charset="UTF-8" method="post"><input type="hidden" name="authenticity_token" value="{{ tok.b64url("form", 86) }}" autocomplete="off" />
+  <div class="field">
+    <label for="user_email">Email</label><br />
+    <input autofocus="autofocus" autocomplete="email" type="email" value="" name="user[email]" id="user_email" />
+  </div>
+
+  <div class="field">
+    <label for="user_password">Password</label><br />
+    <input autocomplete="current-password" type="password" name="user[password]" id="user_password" />
+  </div>
+
+    <div class="field">
+      <input name="user[remember_me]" type="hidden" value="0" autocomplete="off" /><input type="checkbox" value="1" name="user[remember_me]" id="user_remember_me" />
+      <label for="user_remember_me">Remember me</label>
+    </div>
+
+  <div class="actions">
+    <input type="submit" name="commit" value="Log in" data-disable-with="Log in" />
+  </div>
+</form>
+
+  <a href="/users/password/new">Forgot your password?</a><br />
+
+  </body>
+</html>

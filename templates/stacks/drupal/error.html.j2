@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8" />
+<meta name="Generator" content="Drupal {{ v.framework_major }} (https://www.drupal.org)" />
+<meta name="MobileOptimized" content="width" />
+<meta name="HandheldFriendly" content="true" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{{ "Page not found" if status == 404 else reason }} | {{ persona.company }}</title>
+  </head>
+  <body class="path-system">
+    <a href="#main-content" class="visually-hidden focusable skip-link">Skip to main content</a>
+    <div class="dialog-off-canvas-main-canvas" data-off-canvas-main-canvas>
+      <main role="main">
+        <a id="main-content" tabindex="-1"></a>
+        <h1 class="page-title">{{ "Page not found" if status == 404 else reason }}</h1>
+        <div>{{ "The requested page could not be found." if status == 404 else "You are not authorized to access this page." }}</div>
+      </main>
+    </div>
+  </body>
+</html>

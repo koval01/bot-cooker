@@ -1,0 +1,11 @@
+name: Question
+description: Ask about deploying, configuring or extending bot-cooker.
+labels: [question]
+body:
+  - type: textarea
+    id: question
+    attributes:
+      label: Question
+      description: Check the documentation first; it may already have the answer.
+    validations:
+      required: true

@@ -1,0 +1,18 @@
+{% import "sql/postgres/macros.j2" as m %}
+{% for t in tables %}
+{% set pk = (t.columns|selectattr("type", "eq", "pk")|list + [none])[0] %}
+{% if pk %}
+--
+-- Name: {{ t.name }} {{ t.name }}_pkey; Type: CONSTRAINT; Schema: public; Owner: {{ persona.db.user }}
+--
+
+ALTER TABLE ONLY public.{{ m.q(t.name) }}
+    ADD CONSTRAINT {{ t.name }}_pkey PRIMARY KEY ({{ m.q(pk.name) }});
+
+
+{% endif %}
+{% endfor %}
+--
+-- PostgreSQL database dump complete
+--
+

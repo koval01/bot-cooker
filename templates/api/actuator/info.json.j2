@@ -1,0 +1,1 @@
+{{ {"app": {"name": persona.app_name, "version": v.framework}, "build": {"artifact": persona.slug|split("-")|first, "group": "com." ~ persona.slug|split("-")|first, "time": (epochs.cfg_anchor - 86400 * 4)|strftime("%Y-%m-%dT%H:%M:%S.%3fZ")}}|json(api_json) }}

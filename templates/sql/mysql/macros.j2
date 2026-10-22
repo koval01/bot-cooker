@@ -1,0 +1,21 @@
+{% macro q(n) %}`{{ n }}`{% endmacro %}
+{% macro coltype(c, collate) %}
+{%- set t = c.type|split(":") -%}
+{%- set nn = " DEFAULT NULL" if c.null else " NOT NULL" -%}
+{%- if t[0] == "pk" -%}bigint unsigned NOT NULL AUTO_INCREMENT
+{%- elif t[0] == "bigint" -%}bigint unsigned{{ nn }}
+{%- elif t[0] == "int" -%}int{{ nn }}
+{%- elif t[0] == "str" -%}varchar({{ t[1] }}){{ collate }}{{ nn }}
+{%- elif t[0] == "text" -%}longtext{{ collate }}{{ nn }}
+{%- elif t[0] == "ts" -%}timestamp{{ " NULL DEFAULT NULL" if c.null else " NOT NULL" }}
+{%- elif t[0] == "bool" -%}tinyint(1){{ nn }}
+{%- else -%}decimal(10,2){{ nn }}
+{%- endif -%}
+{% endmacro %}
+{% macro lit(cell) %}
+{%- if cell.kind == "null" -%}NULL
+{%- elif cell.kind == "ts" -%}'{{ cell.value|strftime("%Y-%m-%d %H:%M:%S") }}'
+{%- elif cell.kind == "bool" -%}{{ 1 if cell.value else 0 }}
+{%- else -%}{{ cell.value|sql("mysql") }}
+{%- endif -%}
+{% endmacro %}

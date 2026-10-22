@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en-US">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Page not found &#8211; {{ persona.company }}</title>
+<meta name='robots' content='max-image-preview:large' />
+<link rel="alternate" type="application/rss+xml" title="{{ persona.company }} &raquo; Feed" href="{{ request.base_url }}/feed/" />
+<meta name="generator" content="WordPress {{ v.framework }}" />
+</head>
+<body class="error404 hfeed">
+<div id="page" class="site">
+<main id="main" class="site-main">
+<section class="error-404 not-found">
+<header class="page-header">
+<h1 class="page-title">{{ ["Oops! That page can&rsquo;t be found."|safe, "Nothing here", "Page not found"]|choice(persona_seed, "wp-404") }}</h1>
+</header>
+<div class="page-content">
+<p>It looks like nothing was found at this location. Maybe try one of the links below or a search?</p>
+<form role="search" method="get" class="search-form" action="{{ request.base_url }}/">
+<label><span class="screen-reader-text">Search for:</span><input type="search" class="search-field" placeholder="Search &hellip;" value="" name="s" /></label>
+<input type="submit" class="search-submit" value="Search" />
+</form>
+</div>
+</section>
+</main>
+</div>
+</body>
+</html>

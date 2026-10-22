@@ -1,0 +1,13 @@
+{% set title = "405 Not Allowed" if status == 405 else status ~ " " ~ reason %}
+<html>
+<head><title>{{ title }}</title></head>
+<body>
+<center><h1>{{ title }}</h1></center>
+<hr><center>{{ web.server_banner or "nginx" }}</center>
+</body>
+</html>
+{% if status >= 400 %}
+{% for _ in range(6) %}
+<!-- a padding to disable MSIE and Chrome friendly error page -->
+{% endfor %}
+{% endif %}

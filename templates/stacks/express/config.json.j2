@@ -1,0 +1,8 @@
+{% set doc = {
+  "port": [3000, 8080, 4000]|choice(persona_seed, "port"),
+  "env": "production",
+  "db": {"host": persona.db.host, "port": persona.db.port, "database": persona.db.name, "user": persona.db.user, "password": secret.get("db_password")},
+  "jwtSecret": secret.hex("jwt_secret", 64),
+  "mail": {"host": persona.mail.host, "auth": {"user": cfg.mail_user, "pass": cfg.mail_password}},
+} %}
+{{ doc|json("compact", style.json_pretty or 2) }}

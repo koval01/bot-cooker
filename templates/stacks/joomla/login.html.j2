@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en-gb" dir="ltr">
+<head>
+    <meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta name="generator" content="Joomla! - Open Source Content Management">
+	<title>{{ persona.company }} - Administrator</title>
+	<link href="/administrator/templates/atum/images/logos/brand-small.svg" rel="mask-icon" color="#000">
+	<link href="{{ assets.files.admin_css.href }}" rel="stylesheet">
+</head>
+<body class="admin com_login view-login layout-default">
+<section id="content" class="content h-100">
+{% if failed %}
+<div id="system-message-container" aria-live="polite"><joomla-alert type="danger" close-text="Close" dismiss="true" role="alert">Username and password do not match or you do not have an account yet.</joomla-alert></div>
+{% endif %}
+<form class="form-validate" action="/administrator/index.php" method="post" id="form-login">
+	<fieldset>
+		<legend class="visually-hidden">Joomla! Administrator Login</legend>
+		<div class="form-group">
+			<label for="mod-login-username" class="form-label">Username</label>
+			<input name="username" id="mod-login-username" type="text" class="form-control" required autofocus autocomplete="username">
+		</div>
+		<div class="form-group">
+			<label for="mod-login-password" class="form-label">Password</label>
+			<input name="passwd" id="mod-login-password" type="password" class="form-control input-full" required autocomplete="current-password">
+		</div>
+		<div class="form-group">
+			<button type="submit" id="btn-login-submit" class="btn btn-primary w-100 btn-lg">Log in</button>
+		</div>
+		<input type="hidden" name="option" value="com_login">
+		<input type="hidden" name="task" value="login">
+		<input type="hidden" name="return" value="aW5kZXgucGhw">
+		<input type="hidden" name="{{ tok.hex("csrf", 32) }}" value="1">
+	</fieldset>
+</form>
+</section>
+</body>
+</html>

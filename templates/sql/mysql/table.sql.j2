@@ -1,0 +1,24 @@
+{% import "sql/mysql/macros.j2" as m %}
+{% set collate = " COLLATE utf8mb4_unicode_ci" if persona.db.engine == "mysql" else "" %}
+{% set pk = (table.columns|selectattr("type", "eq", "pk")|list + [none])[0] %}
+{% set email = (table.columns|selectattr("name", "in", ["email", "user_email", "Email"])|list + [none])[0] %}
+--
+-- Table structure for table {{ m.q(table.name) }}
+--
+
+DROP TABLE IF EXISTS {{ m.q(table.name) }};
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE {{ m.q(table.name) }} (
+{% for c in table.columns %}
+  {{ m.q(c.name) }} {{ m.coltype(c, collate) }}{{ "," if not loop.last or pk }}
+{% endfor %}
+{% if pk %}
+  PRIMARY KEY ({{ m.q(pk.name) }}){{ "," if email }}
+{% endif %}
+{% if email %}
+  UNIQUE KEY {{ m.q(table.name ~ "_" ~ email.name ~ "_unique") }} ({{ m.q(email.name) }})
+{% endif %}
+) ENGINE=InnoDB{% if pk %} AUTO_INCREMENT={{ table.count + 1 }}{% endif %} DEFAULT CHARSET=utf8mb4 COLLATE={{ "utf8mb4_unicode_ci" if persona.db.engine == "mysql" else "utf8mb4_general_ci" }};
+/*!40101 SET character_set_client = @saved_cs_client */;
+

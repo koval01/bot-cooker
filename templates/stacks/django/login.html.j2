@@ -1,0 +1,69 @@
+{% set site_title = persona.app_name ~ " site admin" %}
+<!DOCTYPE html>
+
+<html lang="en-us" dir="ltr">
+<head>
+<title>Log in | {{ ["Django site admin", site_title, persona.company ~ " administration"]|choice(persona_seed, "dj-title") }}</title>
+<link rel="stylesheet" href="{{ assets.files.admin_base.href }}">
+
+  <link rel="stylesheet" href="{{ assets.files.admin_dark.href }}">
+  <script src="{{ assets.files.admin_theme_js.href }}" defer></script>
+
+<link rel="stylesheet" href="{{ assets.files.admin_nav.href }}">
+<script src="{{ assets.files.admin_nav_js.href }}" defer></script>
+<link rel="stylesheet" href="{{ assets.files.admin_login.href }}">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="{{ assets.files.admin_responsive.href }}">
+
+<meta name="robots" content="NONE,NOARCHIVE">
+</head>
+
+<body class=" login"
+  data-admin-utc-offset="{{ persona.tz_offset * 60 }}">
+<a href="#content-start" class="skip-to-content-link">Skip to main content</a>
+<!-- Container -->
+<div id="container">
+
+    <!-- Header -->
+    <header id="header">
+        <div id="branding">
+<div id="site-name"><a href="/admin/">{{ ["Django administration", persona.app_name ~ " administration", persona.company]|choice(persona_seed, "dj-brand") }}</a></div>
+</div>
+    </header>
+    <!-- END Header -->
+    <div class="main" id="main">
+      <main id="content-start" class="content" tabindex="-1">
+        <!-- Content -->
+        <div id="content" class="colM">
+{% if failed %}
+<p class="errornote">
+Please enter the correct username and password for a staff account. Note that both fields may be case-sensitive.
+</p>
+{% endif %}
+<div id="content-main">
+
+<form action="{{ action }}" method="post" id="login-form"><input type="hidden" name="csrfmiddlewaretoken" value="{{ tok.alnum("csrf", 64) }}">
+  <div class="form-row">
+    <label class="required" for="id_username">Username:</label> <input type="text" name="username" autofocus autocapitalize="none" autocomplete="username" maxlength="150" required id="id_username">
+  </div>
+  <div class="form-row">
+    <label class="required" for="id_password">Password:</label> <input type="password" name="password" autocomplete="current-password" required id="id_password">
+    <input type="hidden" name="next" value="/admin/">
+  </div>
+  <div class="submit-row">
+    <input type="submit" value="Log in">
+  </div>
+</form>
+
+</div>
+          <br class="clear">
+        </div>
+        <!-- END Content -->
+      </main>
+    </div>
+    <footer id="footer"></footer>
+</div>
+<!-- END Container -->
+</body>
+</html>

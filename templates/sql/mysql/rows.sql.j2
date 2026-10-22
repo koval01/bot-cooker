@@ -1,0 +1,8 @@
+{% import "sql/mysql/macros.j2" as m %}
+{% if extended %}
+INSERT INTO {{ m.q(table.name) }} VALUES {% for row in rows %}({% for cell in row %}{{ m.lit(cell) }}{{ "," if not loop.last }}{% endfor %}){{ "," if not loop.last }}{% endfor %};
+{% else %}
+{% for row in rows %}
+INSERT INTO {{ m.q(table.name) }} VALUES ({% for cell in row %}{{ m.lit(cell) }}{{ "," if not loop.last }}{% endfor %});
+{% endfor %}
+{% endif %}

@@ -1,0 +1,5 @@
+{% if persona.stack == "django" %}
+{{ endpoints|json(api_json) }}
+{% else %}
+{{ {"name": persona.app_name, "version": (persona_seed % 4 + 1) ~ "." ~ ((persona_seed // 7 + epochs.cfg // 6) % 23) ~ "." ~ ((persona_seed // 131 + epochs.cfg) % 40), "endpoints": endpoints}|json(api_json) }}
+{% endif %}

@@ -1,0 +1,14 @@
+This release focuses on speed. Lists with many {resource} now load in half the time, and searching no longer freezes the page on slow connections.
+We fixed a bug where some dates were shown in the wrong time zone after daylight saving time started. Reports created during that period have been corrected.
+The new filter panel lets you combine conditions and save them for later. Saved filters are private by default and can be shared with the team.
+Imports now show a preview before anything is written, so you can catch a wrong column before it causes trouble.
+We removed the old {product} widget that hardly anyone used and replaced it with a simpler summary at the top of the page.
+Two small changes that were requested often: the export button is back where it used to be, and you can finally sort by the date of the last change.
+Under the hood we upgraded the database and moved background jobs to a separate queue. You should notice fewer delays when many people work at the same time.
+Emails sent by {product} now come from a dedicated address, which should keep them out of spam folders.
+The integration with our partners in {topic} has been rewritten. It handles retries on its own and logs every failed delivery so we can follow up.
+Accessibility was a theme of this cycle: better contrast, keyboard shortcuts for the most common actions and labels that screen readers understand.
+We are retiring the first version of the API at the end of the year. Requests to the old endpoints will keep working until then and return a warning header.
+Several pages had grown slow over the years. We measured them, removed what was not needed and cached what was expensive to compute.
+The dashboard can now show {resource} from the last ninety days instead of thirty, which was the most common request in the last survey.
+Thanks to everyone who reported problems with the import of {topic2}. The fix is live and the affected files have been processed again.

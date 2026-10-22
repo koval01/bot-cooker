@@ -1,0 +1,21 @@
+[book]
+title = "bot-cooker"
+description = "A defensive HTTP tarpit that raises the cost of automated scanning."
+authors = ["Yaroslav Koval"]
+language = "en"
+src = "src"
+
+[build]
+build-dir = "book"
+create-missing = false
+
+[output.html]
+site-url = "/bot-cooker/"
+git-repository-url = "https://github.com/koval01/bot-cooker"
+edit-url-template = "https://github.com/koval01/bot-cooker/edit/main/docs/{path}"
+default-theme = "light"
+preferred-dark-theme = "navy"
+no-section-label = true
+
+[output.html.search]
+limit-results = 20

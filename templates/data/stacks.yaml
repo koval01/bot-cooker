@@ -1,0 +1,316 @@
+# Facts about each application stack a persona can run. The persona picks
+# from these lists with its own seed; templates under stacks/<id>/ render the
+# stack's files. Placeholders: {short} = short company slug, {rand4}/{rand5}
+# = random lowercase token of that length.
+#
+# Weighted maps (`frontends`, `databases`, `envelopes`, ...) are relative
+# weights; plain lists are uniform picks.
+#
+# HTTP behaviour of the application (values are inline templates rendered
+# with the request context; `rand.*` is per-request randomness, `now` the
+# wall clock, `body_len` the response size):
+#   app_headers      headers on every application response
+#   session_headers  extra headers when a session is started
+#   cookies          Set-Cookie values when a session is started
+#   options          OPTIONS on an app route: an Allow list, `405`, `404`
+#                    or `page` (answer like GET)
+#   post             POST to a page that doesn't take one: `405`, `404`,
+#                    `419`, `403` or `page`
+#   error_type       Content-Type of the framework's error pages
+
+laravel:
+  name: Laravel
+  family: php
+  weight: 14
+  frontends: {nginx: 45, apache: 35, litespeed: 3, openresty: 5, caddy: 5}
+  databases: {mysql: 5, mariadb: 2, postgres: 3}
+  versions: ["9.52.16|9.52.22", "10.48.4|10.50.3", "11.21.0|11.57.0", "12.70.1", "13.38.0"]
+  naming: {snake: 9, camel: 1}
+  dotenv: 1.0
+  app_logs: {p: 1.0, paths: [/storage/logs/laravel.log]}
+  login_paths: [/login, /admin/login, /auth/login, /admin]
+  api_prefixes: [/api, /api/v1, /api/v2, /v1, /rest/v1, /api/v3]
+  envelopes: {data_links_meta: 7, items: 2, bare_array: 1}
+  session_cookies: {laravel_session: 6, "{short}_session": 4}
+  csrf_cookie: XSRF-TOKEN
+  powered_by: {p: 0.45, value: "PHP/{runtime}"}
+  app_headers: [[cache-control, "no-cache, private"]]
+  cookies:
+    - "{{ web.csrf_cookie }}=eyJpdiI6I{{ rand.alnum(300) }}%3D%3D; expires={{ (now + 7200)|strftime('%a, %d %b %Y %H:%M:%S GMT') }}; Max-Age=7200; path=/; samesite=lax"
+    - "{{ web.session_cookie }}=eyJpdiI6I{{ rand.alnum(300) }}%3D%3D; expires={{ (now + 7200)|strftime('%a, %d %b %Y %H:%M:%S GMT') }}; Max-Age=7200; path=/; httponly; samesite=lax"
+  options: GET, HEAD
+  post: "419"
+  error_type: text/html; charset=UTF-8
+  hash: bcrypt_2y
+  routes:
+    - {pattern: /_ignition/health-check, profile: json}
+    - {pattern: /up, profile: blank}
+
+symfony:
+  name: Symfony
+  family: php
+  weight: 7
+  frontends: {nginx: 45, apache: 35, litespeed: 3, openresty: 5, caddy: 5}
+  databases: {mysql: 5, mariadb: 2, postgres: 3}
+  versions: ["5.4.39..5.4.54", "6.4.8..6.4.48", "7.1.3..7.1.11", "7.2.0..7.2.9", "7.3.0..7.3.11", "7.4.0..7.4.21"]
+  naming: {snake: 9, camel: 1}
+  dotenv: 1.0
+  dotenv_extras: [{path: /.env.local.php, p: 0.5}]
+  app_logs: {p: 1.0, paths: [/var/log/prod.log]}
+  login_paths: [/login, /admin/login, /auth/login, /admin]
+  api_prefixes: [/api, /api/v1, /api/v2, /v1, /rest/v1, /api/v3]
+  envelopes: {items: 4, data_links_meta: 3, hal: 2, bare_array: 1}
+  session_cookies: {PHPSESSID: 1}
+  powered_by: {p: 0.45, value: "PHP/{runtime}"}
+  session_headers: [[expires, "Thu, 19 Nov 1981 08:52:00 GMT"], [cache-control, "no-store, no-cache, must-revalidate"], [pragma, no-cache]]
+  cookies: ["{{ web.session_cookie }}={{ rand.lower(32) }}; path=/; secure; httponly; samesite=lax"]
+  options: GET, HEAD
+  post: "405"
+  error_type: text/html; charset=UTF-8
+  hash: bcrypt_or_argon2
+  routes:
+    - {pattern: /index.php, profile: labyrinth}
+
+django:
+  name: Django
+  family: python
+  weight: 10
+  frontends: {nginx: 60, openresty: 10, caddy: 15, apache: 15}
+  databases: {postgres: 7, mysql: 3}
+  versions: ["3.2.25", "4.2.15..4.2.30", "5.0.8..5.0.14", "5.1.1..5.1.15", "5.2.1..5.2.18", "6.0.1..6.0.9"]
+  naming: {snake: 9, camel: 1}
+  dotenv: 1.0
+  config_leaks: [{path: /settings.py, p: 0.25}, {path: /local_settings.py, p: 0.2}]
+  config_fallback: /settings.py
+  app_logs: {p: 0.5, paths: [/logs/django.log]}
+  login_paths: [/admin/login/, /accounts/login/]
+  api_prefixes: [/api, /api/v1, /api/v2, /v1, /rest/v1, /api/v3]
+  envelopes: {count_results: 8, bare_array: 2}
+  session_cookies: {sessionid: 1}
+  csrf_cookie: csrftoken
+  app_headers: [[vary, Cookie], [x-frame-options, DENY], [cross-origin-opener-policy, same-origin], [referrer-policy, same-origin]]
+  cookies: ["csrftoken={{ rand.alnum(32) }}; expires={{ (now + 31449600)|strftime('%a, %d %b %Y %H:%M:%S GMT') }}; Max-Age=31449600; Path=/; SameSite=Lax"]
+  options: GET, HEAD, OPTIONS
+  post: "403"
+  error_type: text/html; charset=utf-8
+  hash: pbkdf2_django
+  routes:
+    - {pattern: /admin/login/, profile: login}
+    - {pattern: /admin/, profile: login}
+    - {pattern: /admin, profile: login}
+
+rails:
+  name: Rails
+  family: ruby
+  weight: 7
+  frontends: {nginx: 60, openresty: 10, caddy: 15, apache: 15}
+  databases: {postgres: 6, mysql: 4}
+  versions: ["6.1.7.10", "7.0.8|7.0.10", "7.1.3|7.1.6", "7.2.1|7.2.4", "8.0.5.1"]
+  naming: {snake: 9, camel: 1}
+  dotenv: 1.0
+  config_leaks: [{path: /config/database.yml, p: 0.6}, {path: /config/storage.yml, p: 0.3}, {path: /config/master.key, p: 0.3}]
+  config_fallback: /config/database.yml
+  app_logs: {p: 1.0, paths: [/log/production.log]}
+  login_paths: [/users/sign_in, /login, /admin/login]
+  api_prefixes: [/api, /api/v1, /api/v2, /v1, /rest/v1, /api/v3]
+  envelopes: {items: 4, data_links_meta: 3, hal: 2, bare_array: 1}
+  session_cookies: {"_{short}_session": 1}
+  powered_by: {p: 0.15, value: "Phusion Passenger(R) 6.0.{rand2}"}
+  request_id: x-request-id
+  security_headers: [[x-frame-options, SAMEORIGIN], [x-content-type-options, nosniff], [x-permitted-cross-domain-policies, none]]
+  app_headers: [[cache-control, "max-age=0, private, must-revalidate"], [etag, 'W/"{{ rand.hex(32) }}"'], [x-runtime, "{{ rand.runtime() }}"]]
+  cookies: ["{{ web.session_cookie }}={{ rand.b64url(180) }}--{{ rand.b64url(22) }}--{{ rand.b64url(22) }}%3D%3D; path=/; secure; httponly; samesite=lax"]
+  request_id_format: uuid
+  options: "404"
+  post: "404"
+  error_type: text/html; charset=utf-8
+  hash: bcrypt_2a
+  routes:
+    - {pattern: /up, profile: blank}
+
+express:
+  name: Express
+  family: node
+  weight: 10
+  frontends: {nginx: 60, openresty: 10, caddy: 15, apache: 15}
+  databases: {postgres: 6, mysql: 4}
+  versions: ["4.18.2|4.19.2|4.21.0|4.21.2", "5.1.0"]
+  naming: {camel: 1}
+  dotenv: 1.0
+  config_leaks: [{path: /config.json, p: 0.4}, {path: /config/default.json, p: 0.3}, {path: /config/production.json, p: 0.3}]
+  app_logs: {p: 0.5, paths: [/logs/app.log, /logs/combined.log, /npm-debug.log]}
+  login_paths: [/login, /admin/login, /auth/login, /admin]
+  api_prefixes: [/api, /api/v1, /api/v2, /v1, /rest/v1, /api/v3]
+  envelopes: {bare_array: 4, items: 4, data_links_meta: 2}
+  session_cookies: {connect.sid: 7, "{short}.sid": 3}
+  powered_by: {p: 0.7, value: Express}
+  app_headers: [[etag, '{% if body_len %}W/"{{ body_len|hexnum }}-{{ rand.b64url(27) }}"{% endif %}']]
+  cookies: ["{{ web.session_cookie }}=s%3A{{ rand.b64url(32) }}.{{ rand.b64url(43) }}; Path=/; HttpOnly"]
+  options: GET,HEAD
+  post: "404"
+  error_type: text/html; charset=utf-8
+  hash: bcrypt_2b
+  routes:
+    - {pattern: /health, profile: json}
+    - {pattern: /graphql, profile: json}
+
+spring_boot:
+  name: Spring Boot
+  family: java
+  weight: 8
+  frontends: {nginx: 60, openresty: 10, caddy: 15, apache: 15}
+  databases: {postgres: 5, mysql: 4, mssql: 1}
+  versions: ["2.7.18", "3.1.12", "3.2.9..3.2.12", "3.3.3..3.3.13", "3.4.0..3.4.13", "3.5.0..3.5.16", "4.0.0..4.0.8"]
+  naming: {camel: 1}
+  config_leaks: [{path: /application.yml, p: 0.5}, {path: /application.properties, p: 0.4}, {path: /application-prod.yml, p: 0.3}]
+  config_fallback: /application.yml
+  app_logs: {p: 0.5, paths: [/logs/spring.log]}
+  login_paths: [/login]
+  api_prefixes: [/api, /api/v1, /api/v2, /v1, /rest/v1, /api/v3]
+  envelopes: {spring_page: 6, hal: 4}
+  session_cookies: {JSESSIONID: 8, SESSION: 2}
+  csrf_cookie: XSRF-TOKEN
+  csrf_cookie_p: 0.3
+  app_headers: [[x-content-type-options, nosniff], [x-xss-protection, "0"], [cache-control, "no-cache, no-store, max-age=0, must-revalidate"], [pragma, no-cache], [expires, "0"], [x-frame-options, DENY]]
+  cookies: ["{{ web.session_cookie }}={{ rand.upper_hex(32) }}; Path=/; HttpOnly"]
+  options: GET,HEAD,OPTIONS
+  post: "405"
+  error_type: text/html;charset=UTF-8
+  hash: bcrypt_2a
+  routes:
+    - {pattern: /actuator, profile: json}
+    - {pattern: /actuator/*, profile: json}
+
+asp_net:
+  name: ASP.NET Core
+  family: dotnet
+  weight: 6
+  frontends: {iis: 6, nginx: 4}
+  databases: {mssql: 7, postgres: 3}
+  clouds: {azure: 8, aws: 3}
+  versions: ["6.0.33..6.0.36", "8.0.8..8.0.32", "9.0.0..9.0.21", "10.0.0..10.0.13"]
+  naming: {camel: 7, pascal: 3}
+  crlf: 0.6
+  config_leaks: [{path: /appsettings.json, p: 0.7}, {path: /appsettings.Production.json, p: 0.5}, {path: /appsettings.Development.json, p: 0.2}]
+  config_fallback: /appsettings.json
+  login_paths: [/Account/Login, /Identity/Account/Login]
+  api_prefixes: [/api, /api/v1, /api/v2, /v1, /rest/v1, /api/v3]
+  envelopes: {items: 6, bare_array: 4}
+  session_cookies: {.AspNetCore.Session: 1}
+  csrf_cookie: ".AspNetCore.Antiforgery.{rand11}"
+  powered_by: {p: 0.8, value: ASP.NET, frontend: iis}
+  request_id: none
+  cookies: ["{{ web.csrf_cookie }}=CfDJ8{{ rand.b64url(150) }}; path=/; samesite=strict; httponly"]
+  options: "405"
+  post: "405"
+  hash: aspnet_identity_v3
+  routes:
+    - {pattern: /swagger/v1/swagger.json, profile: json}
+    - {pattern: /health, profile: blank}
+
+wordpress:
+  name: WordPress
+  family: php
+  cms: true
+  weight: 18
+  frontends: {nginx: 45, apache: 35, litespeed: 12, openresty: 5, caddy: 5}
+  databases: {mysql: 6, mariadb: 4}
+  versions: ["6.4.3..6.4.13", "6.5.2..6.5.13", "6.6.1..6.6.10", "6.7.1..6.7.10", "6.8.1..6.8.11", "6.9.1..6.9.10", "7.0.1..7.0.7"]
+  naming: {snake: 1}
+  dotenv: 0.2
+  config_leaks: [{path: /wp-config.php.bak, p: 0.3}, {path: /wp-config.php~, p: 0.3}, {path: /wp-config.php.save, p: 0.3}, {path: /wp-config.old, p: 0.3}, {path: /wp-config.php.orig, p: 0.3}, {path: /wp-config.txt, p: 0.3}]
+  config_fallback: /wp-config.php.bak
+  app_logs: {p: 1.0, paths: [/wp-content/debug.log]}
+  login_paths: [/wp-login.php]
+  api_prefixes: [/wp-json/wp/v2]
+  api_resources: [users, posts, pages, media, comments]
+  envelopes: {bare_array: 1}
+  areas: [blog, news, category, wp-content/uploads]
+  sitemaps: {p: 1.0, paths: [/wp-sitemap.xml, /sitemap_index.xml, /sitemap.xml]}
+  feeds: {p: 1.0, paths: [/feed/]}
+  repos: [website, wordpress, site, wp]
+  db_names: ["wp_{short}", "wp_{short}", "{short}", "{short}_wp", "wordpress"]
+  db_users: ["wp_{rand5}", "{short}", "wordpress", "root"]
+  table_prefixes: {"wp_": 6, "wp{rand4}_": 4}
+  session_cookies: {wordpress_test_cookie: 1}
+  powered_by: {p: 0.45, value: "PHP/{runtime}"}
+  app_headers: [[link, '<{{ request.base_url }}/wp-json/>; rel="https://api.w.org/"']]
+  options: page
+  post: page
+  error_type: text/html; charset=UTF-8
+  hash: phpass
+  routes:
+    - {pattern: /wp-admin, profile: login}
+    - {pattern: /wp-admin/, profile: login}
+    - {pattern: /wp-admin/*.php, profile: login}
+    - {pattern: /wp-config.php, profile: blank}
+    - {pattern: /xmlrpc.php, profile: blank}
+    - {pattern: /wp-cron.php, profile: blank}
+    - {pattern: /wp-json/, profile: json}
+    - {pattern: /wp-json/wp/v2/*, profile: json}
+    - {pattern: /readme.html, profile: labyrinth}
+    - {pattern: /index.php, profile: labyrinth}
+
+joomla:
+  name: Joomla
+  family: php
+  cms: true
+  weight: 6
+  frontends: {nginx: 45, apache: 35, litespeed: 3, openresty: 5, caddy: 5}
+  databases: {mysql: 6, mariadb: 4}
+  versions: ["3.10.12", "4.4.5..4.4.14", "5.4.0..5.4.10", "6.2.0"]
+  naming: {snake: 1}
+  config_leaks: [{path: /configuration.php.bak, p: 0.35}, {path: /configuration.php~, p: 0.35}, {path: /configuration.php.old, p: 0.35}, {path: /configuration.php.save, p: 0.35}]
+  config_fallback: /configuration.php.bak
+  login_paths: [/administrator/]
+  api_prefixes: [/api/index.php/v1]
+  envelopes: {items: 1}
+  areas: [index.php/blog, news, images, articles]
+  db_names: ["joomla_{rand4}", "joomla_{rand4}", "{short}", "{short}_cms"]
+  table_prefixes: {"{rand5}_": 1}
+  session_cookies: {"{rand32hex}": 1}
+  powered_by: {p: 0.45, value: "PHP/{runtime}"}
+  session_headers: [[expires, "Wed, 17 Aug 2005 00:00:00 GMT"], [cache-control, "no-store, no-cache, must-revalidate, post-check=0, pre-check=0"], [pragma, no-cache]]
+  cookies: ["{{ web.session_cookie }}={{ rand.lower(26) }}; path=/; HttpOnly"]
+  options: page
+  post: page
+  error_type: text/html; charset=utf-8
+  hash: bcrypt_2y
+  routes:
+    - {pattern: /administrator, profile: login}
+    - {pattern: /configuration.php, profile: blank}
+    - {pattern: /administrator/manifests/files/joomla.xml, profile: joomla}
+    - {pattern: /api/index.php/v1/*, profile: json}
+
+drupal:
+  name: Drupal
+  family: php
+  cms: true
+  weight: 7
+  frontends: {nginx: 45, apache: 35, litespeed: 3, openresty: 5, caddy: 5}
+  databases: {mysql: 5, mariadb: 2, postgres: 3}
+  versions: ["7.98|7.100|7.101|7.102|7.103", "9.5.11", "10.2.7..10.2.12", "10.3.2..10.3.14", "10.4.0..10.4.10", "10.5.0..10.5.12", "11.1.0..11.1.10", "11.2.0..11.2.14", "11.3.0..11.3.20"]
+  naming: {snake: 1}
+  config_leaks: [{path: /sites/default/settings.php.bak, p: 0.35}, {path: /sites/default/settings.php~, p: 0.35}, {path: /sites/default/settings.local.php, p: 0.35}, {path: /sites/default/default.settings.php.bak, p: 0.35}]
+  config_fallback: /sites/default/settings.php.bak
+  app_logs: {p: 0.3, paths: [/sites/default/files/php_errors.log]}
+  login_paths: [/user/login]
+  api_prefixes: [/jsonapi]
+  envelopes: {items: 1}
+  areas: [node, news, sites/default/files, articles]
+  feeds: {p: 1.0, paths: [/rss.xml]}
+  db_names: ["drupal", "drupal8", "drupal9", "drupal10", "drupal_prod", "{short}"]
+  session_cookies: {"SSESS{rand32hex}": 1}
+  powered_by: {p: 0.45, value: "PHP/{runtime}"}
+  app_headers: [[cache-control, "must-revalidate, no-cache, private"], [x-drupal-dynamic-cache, MISS], [x-generator, "Drupal {{ persona.versions.framework.major }} (https://www.drupal.org)"], [x-drupal-cache, MISS]]
+  options: page
+  post: page
+  error_type: text/html; charset=UTF-8
+  hash: drupal
+  routes:
+    - {pattern: /sites/default/settings.php, profile: blank}
+    - {pattern: /core/CHANGELOG.txt, profile: drupal}
+    - {pattern: /CHANGELOG.txt, profile: drupal}
+    - {pattern: /jsonapi, profile: json}
+    - {pattern: /jsonapi/*, profile: json}
+    - {pattern: /user/register, profile: login}

@@ -1,0 +1,19 @@
+# Which template renders a leaked config file, by file name (first match
+# wins, `*` globs). `type` is the Content-Type when the file is served by
+# the application rather than as a static file.
+files:
+  - {match: "wp-config*", template: stacks/wordpress/wp-config.php.j2}
+  - {match: "configuration.php*", template: stacks/joomla/configuration.php.j2}
+  - {match: "*settings*.php*", template: stacks/drupal/settings.php.j2}
+  - {match: "database.yml", template: stacks/rails/database.yml.j2}
+  - {match: "storage.yml", template: stacks/rails/storage.yml.j2}
+  - {match: "master.key", template: stacks/rails/master.key.j2}
+  - {match: "application*.yml", template: stacks/spring_boot/application.yml.j2}
+  - {match: "application*.yaml", template: stacks/spring_boot/application.yml.j2}
+  - {match: "application*.properties", template: stacks/spring_boot/application.properties.j2}
+  - {match: "appsettings*", template: stacks/asp_net/appsettings.json.j2}
+  - {match: "*.py", template: stacks/django/settings.py.j2}
+  - {match: "docker-compose*", template: common/docker-compose.yml.j2}
+  - {match: ".env.local.php", template: stacks/symfony/env.local.php.j2}
+  - {match: "*.json", template: stacks/express/config.json.j2}
+  - {match: "*", template: common/dotenv.j2}

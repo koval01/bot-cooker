@@ -1,0 +1,160 @@
+name: Release
+
+# Push a tag like v0.2.0 to build the archives, attach them to a GitHub
+# release and publish the multi-arch image to ghcr.io (the image the one-line
+# installer runs). The pack tool is not shipped: it is built locally when needed.
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: read
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        include:
+          - os: ubuntu-latest
+            target: x86_64-unknown-linux-musl
+            archive: tar.gz
+          - os: ubuntu-24.04-arm
+            target: aarch64-unknown-linux-musl
+            archive: tar.gz
+          - os: windows-latest
+            target: x86_64-pc-windows-msvc
+            archive: zip
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v7
+      - name: Install the pinned toolchain
+        shell: bash
+        run: rustup toolchain install && rustup target add ${{ matrix.target }}
+      - name: Install musl tools
+        if: runner.os == 'Linux'
+        run: sudo apt-get update && sudo apt-get install -y musl-tools
+      # Static binaries: no glibc version on Linux, no VC++ runtime on Windows.
+      - name: Build
+        shell: bash
+        run: |
+          if [ "${{ runner.os }}" = Windows ]; then export RUSTFLAGS="-C target-feature=+crt-static"; fi
+          cargo build --release --locked --target ${{ matrix.target }}
+      - name: Package
+        shell: bash
+        run: |
+          name="bot-cooker-${GITHUB_REF_NAME}-${{ matrix.target }}"
+          mkdir -p "dist/$name"
+          cp README.md LICENSE NOTICE bot-cooker.yaml "dist/$name/"
+          if [ "${{ runner.os }}" = Windows ]; then
+            cp target/${{ matrix.target }}/release/bot-cooker.exe deploy/windows/*.ps1 "dist/$name/"
+            (cd dist && 7z a -tzip "$name.zip" "$name" > /dev/null)
+          else
+            cp target/${{ matrix.target }}/release/bot-cooker "dist/$name/"
+            tar -C dist -czf "dist/$name.tar.gz" "$name"
+          fi
+      - uses: actions/upload-artifact@v7
+        with:
+          name: dist-${{ matrix.target }}
+          path: dist/*.${{ matrix.archive }}
+
+  # One native build per architecture, pushed by digest, then joined into a
+  # single tag. Native runners keep the Rust build fast (no emulation).
+  image:
+    strategy:
+      matrix:
+        include:
+          - platform: linux/amd64
+            runner: ubuntu-latest
+          - platform: linux/arm64
+            runner: ubuntu-24.04-arm
+    runs-on: ${{ matrix.runner }}
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v7
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build and push by digest
+        id: build
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          platforms: ${{ matrix.platform }}
+          outputs: type=image,name=ghcr.io/${{ github.repository }},push-by-digest=true,name-canonical=true,push=true
+      - name: Export the digest
+        run: |
+          mkdir -p digests
+          touch "digests/${DIGEST#sha256:}"
+        env:
+          DIGEST: ${{ steps.build.outputs.digest }}
+      - uses: actions/upload-artifact@v7
+        with:
+          name: digest-${{ matrix.runner }}
+          path: digests/*
+
+  image-tags:
+    needs: image
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/download-artifact@v8
+        with:
+          path: digests
+          pattern: digest-*
+          merge-multiple: true
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Tag the release and latest
+        working-directory: digests
+        run: |
+          image="ghcr.io/${GITHUB_REPOSITORY}"
+          version="${GITHUB_REF_NAME#v}"
+          tags=(-t "$image:$version")
+          # Pre-releases never move "latest".
+          case "$version" in *-*) ;; *) tags+=(-t "$image:latest") ;; esac
+          docker buildx imagetools create "${tags[@]}" \
+            $(printf "$image@sha256:%s " *)
+          docker buildx imagetools inspect "$image:$version"
+
+  # Published last, once the image exists: installations with automatic
+  # updates act on the release as soon as it appears. The installer ships
+  # with it so updaters can check its checksum. Tags with a suffix
+  # (v1.2.0-rc.1) are pre-releases, which updaters ignore.
+  publish:
+    needs: [build, image-tags]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v7
+      # Only the archives: the image jobs' digest artifacts are not release files.
+      - uses: actions/download-artifact@v8
+        with:
+          path: dist
+          pattern: dist-*
+          merge-multiple: true
+      - name: Add the installer
+        run: cp deploy/install.sh dist/install.sh
+      - name: Checksums
+        run: cd dist && sha256sum * > SHA256SUMS
+      - name: Create the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          pre=""
+          case "$GITHUB_REF_NAME" in *-*) pre="--prerelease" ;; esac
+          gh release create "$GITHUB_REF_NAME" dist/* --repo "$GITHUB_REPOSITORY" --title "$GITHUB_REF_NAME" --generate-notes $pre

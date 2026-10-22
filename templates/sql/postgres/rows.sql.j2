@@ -1,0 +1,5 @@
+{% import "sql/postgres/macros.j2" as m %}
+{% for row in rows %}
+{% for cell in row %}{{ m.lit(cell) }}{{ "\t" if not loop.last }}{% endfor %}
+
+{% endfor %}

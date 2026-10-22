@@ -1,0 +1,4 @@
+{{ {"name": persona.company, "description": "", "url": request.base_url, "home": request.base_url, "gmt_offset": (persona.tz_offset // 60) ~ "", "timezone_string": persona.tz_name,
+  "namespaces": ["oembed/1.0", "wp/v2", "wp-site-health/v1", "wp-block-editor/v1"], "authentication": [],
+  "routes": {"/": {"namespace": "", "methods": ["GET"], "endpoints": [{"methods": ["GET"], "args": {"context": {"default": "view", "required": false}}}]}},
+  "site_logo": 0, "site_icon": 0, "site_icon_url": ""}|json(api_json) }}

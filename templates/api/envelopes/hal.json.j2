@@ -1,0 +1,3 @@
+{{ {"_embedded": {resource: "MARKER"},
+  "_links": {"self": {"href": base ~ "?page=" ~ (page - 1) ~ "&size=" ~ per_page}, "next": {"href": base ~ "?page=" ~ page ~ "&size=" ~ per_page}},
+  "page": {"size": per_page, "totalElements": total, "totalPages": pages, "number": page - 1}}|json(api_json) }}

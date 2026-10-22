@@ -1,0 +1,4 @@
+{% import "sql/mysql/macros.j2" as m %}
+/*!40000 ALTER TABLE {{ m.q(table.name) }} ENABLE KEYS */;
+UNLOCK TABLES;
+

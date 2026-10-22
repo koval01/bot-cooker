@@ -1,0 +1,194 @@
+# Facts about the front servers. Error pages and directory listings live in
+# servers/<id>/*.j2; this file holds what the persona needs to pick a version
+# and banner (`banner` placeholders: {version}, {flavour}, {randN}) and how
+# the server behaves on the wire:
+#
+#   etag            template for the ETag of a static file (vars: mtime,
+#                   size, salt — a stable per-path number)
+#   static_headers  order of the static-file metadata headers
+#   mime            content types by extension; `mime_default` for the rest
+#                   (absent = no Content-Type at all, like Apache)
+#   page_type       Content-Type of the server's own pages
+#   crlf_pages      the server writes its own pages with CRLF
+#   static_options  answer to OPTIONS on a file: an Allow list or `405`
+#   unknown_method  status for verbs it does not know
+
+nginx:
+  distros: {ubuntu: 50, debian: 30, rhel: 15, alpine: 5}
+  versions:
+    # Distribution packages keep their upstream version through security
+    # updates: Ubuntu 22.04/24.04, Debian 11/12/13, RHEL 8/9 streams.
+    ubuntu: ["1.18.0", "1.24.0"]
+    debian: ["1.18.0", "1.22.1", "1.26.3"]
+    rhel: ["1.14.1", "1.20.1", "1.22.1", "1.24.0"]
+    default: ["1.24.0", "1.26.0..1.26.3", "1.27.0..1.27.5", "1.28.0..1.28.3", "1.29.0..1.29.8", "1.30.0..1.30.6"]
+  flavours: {ubuntu: " (Ubuntu)"}
+  banner: "nginx/{version}{flavour}"
+  banner_hidden: nginx
+  hide_p: 0.4
+  access_formats: {combined: 8, json: 2}
+  etag: '"{{ mtime|hexnum }}-{{ size|hexnum }}"'
+  static_headers: [last-modified, etag, accept-ranges]
+  mime: {html: text/html, htm: text/html, txt: text/plain, json: application/json, css: text/css, js: application/javascript, xml: text/xml, gz: application/gzip, ico: image/x-icon}
+  mime_default: application/octet-stream
+  page_type: text/html
+  crlf_pages: true
+  static_options: "405"
+  unknown_method: 405
+  wire:
+    case: title
+    first: [server, date, content-type, content-length, transfer-encoding, last-modified, connection]
+    keep_alive: explicit
+    keepalive_secs: 75
+    keepalive_max: 1000
+    header_timeout_secs: 60
+    max_request_line: 8192
+    max_head: 32768
+    uri_too_long: 414
+    head_too_large: 400
+    max_body: 1048576
+    reasons: {405: Not Allowed}
+
+openresty:
+  distros: {ubuntu: 50, debian: 30, rhel: 15, alpine: 5}
+  versions:
+    default: ["1.21.4.1|1.21.4.2|1.21.4.3", "1.25.3.1|1.25.3.2", "1.27.1.1|1.27.1.2"]
+  banner: "openresty/{version}"
+  banner_hidden: openresty
+  hide_p: 0.4
+  access_formats: {combined: 8, json: 2}
+  etag: '"{{ mtime|hexnum }}-{{ size|hexnum }}"'
+  static_headers: [last-modified, etag, accept-ranges]
+  mime: {html: text/html, htm: text/html, txt: text/plain, json: application/json, css: text/css, js: application/javascript, xml: text/xml, gz: application/gzip, ico: image/x-icon}
+  mime_default: application/octet-stream
+  page_type: text/html
+  crlf_pages: true
+  static_options: "405"
+  unknown_method: 405
+  wire:
+    case: title
+    first: [server, date, content-type, content-length, transfer-encoding, last-modified, connection]
+    keep_alive: explicit
+    keepalive_secs: 75
+    keepalive_max: 1000
+    header_timeout_secs: 60
+    max_request_line: 8192
+    max_head: 32768
+    uri_too_long: 414
+    head_too_large: 400
+    max_body: 1048576
+    reasons: {405: Not Allowed}
+
+apache:
+  distros: {ubuntu: 50, debian: 30, rhel: 15, alpine: 5}
+  versions:
+    ubuntu: ["2.4.52", "2.4.58"]
+    debian: ["2.4.62"]
+    rhel: ["2.4.6", "2.4.37", "2.4.57", "2.4.62"]
+    default: ["2.4.57|2.4.58|2.4.59|2.4.62|2.4.63"]
+  flavours: {ubuntu: " (Ubuntu)", debian: " (Debian)", rhel: " (Red Hat Enterprise Linux)", alpine: " (Unix)"}
+  banner: "Apache/{version}{flavour}"
+  banner_hidden: Apache
+  hide_p: 0.4
+  access_formats: {combined: 6, vhost_combined: 4}
+  etag: '"{{ size|hexnum }}-{{ (mtime * 1000000 + salt % 1000000)|hexnum }}"'
+  static_headers: [last-modified, etag, accept-ranges]
+  mime: {html: text/html, htm: text/html, txt: text/plain, json: application/json, css: text/css, js: application/javascript, xml: application/xml, sql: application/sql, gz: application/x-gzip, ico: image/vnd.microsoft.icon}
+  page_type: text/html; charset=iso-8859-1
+  static_options: OPTIONS,HEAD,GET,POST
+  unknown_method: 501
+  wire:
+    case: title
+    first: [date, server]
+    last: [content-length, transfer-encoding, keep-alive, connection, content-type]
+    keep_alive: counted
+    keepalive_secs: 5
+    keepalive_max: 100
+    header_timeout_secs: 20
+    max_request_line: 8190
+    max_head: 819000
+    uri_too_long: 414
+    head_too_large: 400
+    max_body: 1073741824
+
+caddy:
+  distros: {alpine: 5, debian: 3, ubuntu: 2}
+  versions:
+    default: ["2.7.0..2.7.6", "2.8.0..2.8.4", "2.9.0|2.9.1"]
+  banner: Caddy
+  access_formats: {combined: 8, json: 2}
+  etag: '"{{ mtime|base36 }}{{ size|base36 }}"'
+  static_headers: [etag, last-modified, accept-ranges]
+  mime: {html: text/html; charset=utf-8, htm: text/html; charset=utf-8, txt: text/plain; charset=utf-8, json: application/json, css: text/css; charset=utf-8, js: text/javascript; charset=utf-8, xml: text/xml; charset=utf-8, gz: application/gzip, ico: image/x-icon}
+  mime_default: text/plain; charset=utf-8
+  page_type: text/html; charset=utf-8
+  static_options: "405"
+  unknown_method: 405
+  wire:
+    case: go
+    sorted: true
+    echo_version: true
+    cleans_paths: true
+    keep_alive: implicit
+    keepalive_secs: 300
+    keepalive_max: 100000
+    header_timeout_secs: 60
+    max_request_line: 1048576
+    max_head: 1048576
+    uri_too_long: 431
+    head_too_large: 431
+    max_body: 1073741824
+
+iis:
+  distros: {windows: 1}
+  versions:
+    default: ["10.0.0"]
+  banner: Microsoft-IIS/10.0
+  access_formats: {iis: 1}
+  etag: '"{{ (salt % 1000000000000000)|hexnum }}:0"'
+  static_headers: [last-modified, accept-ranges, etag]
+  mime: {html: text/html, htm: text/html, txt: text/plain, json: application/json, css: text/css, js: application/javascript, xml: text/xml, ico: image/x-icon}
+  mime_default: application/octet-stream
+  page_type: text/html
+  static_options: OPTIONS, TRACE, GET, HEAD, POST
+  unknown_method: 501
+  wire:
+    case: title
+    first: [cache-control, content-type, last-modified, accept-ranges, etag, server]
+    last: [date, connection, content-length]
+    keep_alive: implicit
+    keepalive_secs: 120
+    keepalive_max: 100000
+    header_timeout_secs: 120
+    max_request_line: 16384
+    max_head: 16384
+    uri_too_long: 414
+    head_too_large: 400
+    max_body: 30000000
+
+litespeed:
+  distros: {ubuntu: 50, debian: 30, rhel: 15, alpine: 5}
+  versions:
+    default: ["6.2.1"]
+  banner: LiteSpeed
+  access_formats: {combined: 8, json: 2}
+  etag: '"{{ size|hexnum }}-{{ mtime|hexnum }}-{{ (salt % 65536)|hexnum }};;;"'
+  static_headers: [last-modified, etag, accept-ranges]
+  mime: {html: text/html, htm: text/html, txt: text/plain, json: application/json, css: text/css, js: application/javascript, xml: application/xml, ico: image/x-icon}
+  mime_default: application/octet-stream
+  page_type: text/html
+  static_options: OPTIONS,HEAD,GET,POST
+  unknown_method: 501
+  wire:
+    case: lower
+    first: [connection, keep-alive]
+    last: [content-length, transfer-encoding, date, server]
+    keep_alive: counted
+    keepalive_secs: 5
+    keepalive_max: 100
+    header_timeout_secs: 30
+    max_request_line: 16384
+    max_head: 32768
+    uri_too_long: 414
+    head_too_large: 400
+    max_body: 2047000000

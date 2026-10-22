@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+{% include "site/_head.html.j2" %}
+</head>
+<body>
+<div id="{{ ["wrapper", "page", "container", "main-wrap", "site"]|choice(persona_seed, "classic-wrap") }}">
+<div id="{{ ["header", "top", "masthead", "branding"]|choice(persona_seed, "classic-header") }}">
+<div class="logo"><a href="/">{{ persona.company }}</a></div>
+{% if tagline %}<div class="tagline">{{ tagline }}</div>{% endif %}
+<ul id="{{ ["menu", "nav", "navigation", "topnav"]|choice(persona_seed, "classic-menu") }}">
+<li><a href="/">{{ ["Home", "Start", "Main page", "Welcome", "Overview"]|choice(persona_seed, "classic-home") }}</a></li>
+{% for item in nav %}
+<li><a href="{{ item.href }}">{{ item.label }}</a></li>
+{% endfor %}
+<li class="right"><a href="{{ site.login_path }}">{{ ["Log in", "Sign in", "Login", "Account"]|choice(persona_seed, "nav-login") }}</a></li>
+</ul>
+</div>
+<div id="{{ ["content", "main", "primary", "body"]|choice(persona_seed, "classic-content") }}">
+<h1>{{ heading }}</h1>
+{% for p in paragraphs %}
+<p>{{ p }}</p>
+{% endfor %}
+<h3>{{ ["Recent", "Latest", "See also", "Related"]|choice(persona_seed, "related") }}</h3>
+<ul class="{{ ["related", "recent", "more", "links", "list"]|choice(persona_seed, "classic-related") }}">
+{% for link in links %}
+<li><a href="{{ link.href }}">{{ link.title }}</a> <span class="date">{{ link.time|strftime("%d.%m.%Y") }}</span></li>
+{% endfor %}
+</ul>
+</div>
+<div id="{{ ["footer", "bottom", "colophon", "site-info"]|choice(persona_seed, "classic-footer") }}">&copy; {{ epochs.cfg_anchor|strftime("%Y") }} {{ persona.company }}.{{ [" All rights reserved.", "", " All rights reserved", " Made with care."]|choice(persona_seed, "footer") }}</div>
+</div>
+</body>
+</html>

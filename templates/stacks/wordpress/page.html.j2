@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en-US">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{% if home %}{{ persona.company }}{% if tagline %} &#8211; {{ tagline }}{% endif %}{% else %}{{ heading }} &#8211; {{ persona.company }}{% endif %}</title>
+<meta name='robots' content='index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1' />
+{% set theme = assets.picks.wp_theme %}
+<link rel='stylesheet' id='wp-block-library-css' href='{{ request.base_url }}{{ assets.files.block_library.path }}?ver={{ v.framework }}' media='all' />
+<link rel='stylesheet' id='{{ theme }}-style-css' href='{{ request.base_url }}{{ assets.files.theme.href }}' media='all' />
+<link rel="https://api.w.org/" href="{{ request.base_url }}/wp-json/" />
+<link rel="EditURI" type="application/rsd+xml" title="RSD" href="{{ request.base_url }}/xmlrpc.php?rsd" />
+<meta name="generator" content="WordPress {{ v.framework }}" />
+</head>
+<body class="{{ "home blog" if home else "page-template-default page" }} wp-embed-responsive">
+<div id="page" class="site">
+<header id="masthead" class="site-header">
+<p class="site-title"><a href="{{ request.base_url }}/" rel="home">{{ persona.company }}</a></p>
+{% if tagline %}<p class="site-description">{{ tagline }}</p>{% endif %}
+<nav id="site-navigation" class="main-navigation"><ul id="primary-menu" class="menu">
+{% for item in nav %}
+<li class="menu-item"><a href="{{ request.base_url }}{{ item.href }}">{{ item.label }}</a></li>
+{% endfor %}
+</ul></nav>
+</header>
+<main id="primary" class="site-main">
+<article class="{{ "post" if home else "page" }} type-page status-publish hentry">
+<header class="entry-header"><h1 class="entry-title">{{ heading }}</h1></header>
+<div class="entry-content">
+{% if php_body %}{{ php_body|safe }}{% endif %}
+{% for p in paragraphs %}
+<p>{{ p }}</p>
+{% endfor %}
+</div>
+</article>
+{% for link in links %}
+<article class="post type-post status-publish format-standard hentry">
+<h2 class="entry-title"><a href="{{ request.base_url }}{{ link.href }}" rel="bookmark">{{ link.title }}</a></h2>
+<div class="entry-meta"><span class="posted-on"><time class="entry-date published" datetime="{{ link.time|strftime("%Y-%m-%dT%H:%M:%S%:z", persona.tz_offset) }}">{{ link.time|strftime("%B %e, %Y", persona.tz_offset) }}</time></span></div>
+</article>
+{% endfor %}
+</main>
+<footer id="colophon" class="site-footer"><div class="site-info">&copy; {{ epochs.cfg_anchor|strftime("%Y") }} {{ persona.company }}.{{ [" All rights reserved.", "", " All rights reserved", " Made with care."]|choice(persona_seed, "footer") }} <span class="sep"> | </span>Proudly powered by <a href="https://wordpress.org/">WordPress</a></div></footer>
+</div>
+<script src="{{ request.base_url }}{{ assets.files.emoji.path }}?ver={{ v.framework }}" id="wp-emoji-js"></script>
+</body>
+</html>

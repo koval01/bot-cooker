@@ -1,0 +1,6 @@
+# Every build (local, CI, releases) uses this toolchain; rustup installs it
+# on first use.
+[toolchain]
+channel = "1.99"
+components = ["rustfmt", "clippy"]
+profile = "minimal"

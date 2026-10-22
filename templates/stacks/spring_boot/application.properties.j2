@@ -1,0 +1,28 @@
+{% set sep = " = " if persona_seed % 7 == 0 else "=" %}
+{% if persona.db.engine == "postgres" %}
+{% set jdbc = "jdbc:postgresql://" ~ persona.db.host ~ ":" ~ persona.db.port ~ "/" ~ persona.db.name %}
+{% else %}
+{% set jdbc = "jdbc:mysql://" ~ persona.db.host ~ ":" ~ persona.db.port ~ "/" ~ persona.db.name ~ "?useSSL=false&serverTimezone=UTC" %}
+{% endif %}
+spring.application.name{{ sep }}{{ persona.app_name }}
+server.port{{ sep }}8080
+
+{% if persona_seed % 2 %}
+# Database
+{% endif %}
+spring.datasource.url{{ sep }}{{ jdbc }}
+spring.datasource.username{{ sep }}{{ persona.db.user }}
+spring.datasource.password{{ sep }}{{ secret.get("db_password") }}
+spring.jpa.hibernate.ddl-auto{{ sep }}{{ ["validate", "none", "update"]|choice(persona_seed, "ddl") }}
+spring.jpa.show-sql{{ sep }}false
+
+spring.mail.host{{ sep }}{{ persona.mail.host }}
+spring.mail.port{{ sep }}{{ persona.mail.port }}
+spring.mail.username{{ sep }}{{ cfg.mail_user }}
+spring.mail.password{{ sep }}{{ cfg.mail_password }}
+{% if note %}
+# {{ note }}
+{% endif %}
+
+management.endpoints.web.exposure.include{{ sep }}{{ ["*", "health,info,env"]|choice(persona_seed, "actuator") }}
+jwt.secret{{ sep }}{{ secret.b64("jwt_secret", 64) }}

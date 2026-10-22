@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+{% include "site/_head.html.j2" %}
+  </head>
+  <body class="{{ ["docs", "kb", "help-center", "documentation", "support"]|choice(persona_seed, "docs-body") }}">
+    <aside class="{{ ["sidebar", "side-nav", "toc-sidebar", "menu", "nav-panel"]|choice(persona_seed, "docs-aside") }}">
+      <a class="sidebar-brand" href="/">{{ persona.company }}</a>
+      <nav aria-label="{{ ["Sections", "Documentation", "Contents", "Main", "Topics"]|choice(persona_seed, "docs-nav") }}">
+{% for item in nav %}
+        <a class="sidebar-link" href="{{ item.href }}">{{ item.label }}</a>
+{% endfor %}
+      </nav>
+      <a class="sidebar-account" href="{{ site.login_path }}">{{ ["Log in", "Sign in", "Login", "Account"]|choice(persona_seed, "nav-login") }}</a>
+    </aside>
+    <article class="{{ ["content", "doc", "main-content", "article-body", "page-content"]|choice(persona_seed, "docs-article") }}">
+      <header><h1>{{ heading }}</h1></header>
+{% for p in paragraphs %}
+      <p>{{ p }}</p>
+{% endfor %}
+      <section class="{{ ["toc", "children", "subpages", "article-list", "see-also"]|choice(persona_seed, "docs-toc") }}">
+        <h2>{{ ["In this section", "Articles", "Contents", "More"]|choice(persona_seed, "toc") }}</h2>
+        <ol>
+{% for link in links %}
+          <li><a href="{{ link.href }}">{{ link.title }}</a></li>
+{% endfor %}
+        </ol>
+      </section>
+      <footer class="content-footer">{{ ["Last updated", "Updated", "Reviewed"]|choice(persona_seed, "updated") }} {{ epochs.log_anchor|strftime("%B %e, %Y") }} &middot; &copy; {{ epochs.cfg_anchor|strftime("%Y") }} {{ persona.company }}.{{ [" All rights reserved.", "", " All rights reserved", " Made with care."]|choice(persona_seed, "footer") }}</footer>
+    </article>
+  </body>
+</html>

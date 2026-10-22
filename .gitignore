@@ -1,0 +1,14 @@
+/target
+**/*.rs.bk
+*.pdb
+.DS_Store
+.idea/
+
+# Local operator files: node inventory, content packs, built docs.
+/deploy/nodes
+/packs/
+/docs/book/
+/fuzz/target/
+/fuzz/corpus/
+/fuzz/artifacts/
+/fuzz/coverage/

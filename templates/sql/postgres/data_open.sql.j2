@@ -1,0 +1,6 @@
+{% import "sql/postgres/macros.j2" as m %}
+--
+-- Data for Name: {{ table.name }}; Type: TABLE DATA; Schema: public; Owner: {{ persona.db.user }}
+--
+
+COPY public.{{ m.q(table.name) }} ({% for c in table.columns %}{{ m.q(c.name) }}{{ ", " if not loop.last }}{% endfor %}) FROM stdin;

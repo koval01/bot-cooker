@@ -1,0 +1,8 @@
+{% if persona.distro == "ubuntu" %}{% set suffix = "-0ubuntu0." ~ ["22.04.1", "20.04.1", "24.04.1"]|choice(persona_seed, "mysql-ubuntu") %}{% else %}{% set suffix = "" %}{% endif %}
+-- MySQL dump 10.13  Distrib {{ v.db }}, for Linux (x86_64)
+--
+-- Host: {{ "localhost" if host_is_local else persona.db.host }}    Database: {{ persona.db.name }}
+-- ------------------------------------------------------
+-- Server version	{{ v.db }}{{ suffix }}
+
+{% include "sql/mysql/sets.sql.j2" %}

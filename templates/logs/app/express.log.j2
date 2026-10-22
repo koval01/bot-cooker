@@ -1,0 +1,8 @@
+{% set pino = persona_seed % 2 == 0 %}
+{% for e in events %}
+{% if pino %}
+{{ {"level": 50 if e.status >= 500 else (40 if e.status >= 400 else 30), "time": e.t * 1000 + e.micros // 1000, "pid": e.pid, "hostname": persona.hostname, "req": {"id": e.conn, "method": e.method, "url": e.path, "remoteAddress": e.ip}, "res": {"statusCode": e.status}, "responseTime": e.ms, "msg": "request completed"}|json("compact") }}
+{% else %}
+{{ e.ip }} - - [{{ e.t|strftime("%d/%b/%Y:%H:%M:%S +0000") }}] "{{ e.method }} {{ e.path }} HTTP/1.1" {{ e.status }} {{ e.bytes }} "-" "{{ e.agent }}"
+{% endif %}
+{% endfor %}

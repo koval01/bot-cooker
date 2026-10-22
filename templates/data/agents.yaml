@@ -1,0 +1,84 @@
+# User-Agent generation. Nothing here is a finished UA string: versions are
+# computed from the date being simulated (release cadences below), each
+# instance re-weights the mix, and visitors lag behind the latest release by
+# a realistic amount. Placeholders are filled from the computed versions.
+
+# Linear cadences: major = base + floor((date - since) / days).
+cadences:
+  # Real cadences slip around holidays: averaged over the last releases.
+  chrome: {base: 130, since: "2024-10-15", days: 31}
+  firefox: {base: 132, since: "2024-10-29", days: 29}
+  samsung: {base: 23, since: "2023-11-01", days: 100}
+
+# Stepped releases: the value valid from each date on.
+steps:
+  safari:
+    - ["2023-09-18", "17"]
+    - ["2024-09-16", "18"]
+    - ["2025-09-15", "26"]
+  ios:
+    - ["2023-09-18", "17_0"]
+    - ["2024-03-05", "17_4"]
+    - ["2024-09-16", "18_0"]
+    - ["2025-03-31", "18_4"]
+    - ["2025-09-15", "26_0"]
+    - ["2026-03-30", "26_4"]
+  curl:
+    - ["2023-12-06", "8.5.0"]
+    - ["2024-03-27", "8.7.1"]
+    - ["2024-07-24", "8.9.0"]
+    - ["2024-11-06", "8.11.0"]
+    - ["2025-04-02", "8.13.0"]
+    - ["2025-09-10", "8.16.0"]
+    - ["2026-03-04", "8.19.0"]
+  requests:
+    - ["2023-05-22", "2.31.0"]
+    - ["2024-05-20", "2.32.2"]
+    - ["2024-05-29", "2.32.3"]
+    - ["2025-06-09", "2.32.4"]
+    - ["2025-08-18", "2.32.5"]
+  wget:
+    - ["2023-05-20", "1.21.4"]
+    - ["2024-08-31", "1.24.5"]
+    - ["2025-07-01", "1.25.0"]
+
+# How far behind the newest release visitors run (in major versions).
+lag: {0: 45, 1: 30, 2: 12, 3: 6, 5: 4, 9: 3}
+
+browsers:
+  - {weight: 34, ua: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/{chrome}.0.0.0 Safari/537.36"}
+  - {weight: 11, ua: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/{chrome}.0.0.0 Safari/537.36"}
+  - {weight: 8, ua: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/{chrome}.0.0.0 Safari/537.36 Edg/{chrome}.0.{edge_build}.{edge_patch}"}
+  - {weight: 7, ua: "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:{firefox}.0) Gecko/20100101 Firefox/{firefox}.0"}
+  - {weight: 3, ua: "Mozilla/5.0 (X11; Linux x86_64; rv:{firefox}.0) Gecko/20100101 Firefox/{firefox}.0"}
+  - {weight: 2, ua: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:{firefox}.0) Gecko/20100101 Firefox/{firefox}.0"}
+  - {weight: 5, ua: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/{safari}.{safari_minor} Safari/605.1.15"}
+  - {weight: 13, ua: "Mozilla/5.0 (iPhone; CPU iPhone OS {ios} like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/{safari}.{safari_minor} Mobile/15E148 Safari/604.1"}
+  - {weight: 13, ua: "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/{chrome}.0.0.0 Mobile Safari/537.36"}
+  - {weight: 3, ua: "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/{chrome}.0.0.0 Safari/537.36"}
+  - {weight: 2, ua: "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) SamsungBrowser/{samsung}.0 Chrome/{chrome_old}.0.0.0 Mobile Safari/537.36"}
+
+crawlers:
+  - {weight: 10, ua: "Mozilla/5.0 (Linux; Android 6.0.1; Nexus 5X Build/MMB29P) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/{chrome}.0.{chrome_build}.{chrome_patch} Mobile Safari/537.36 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)"}
+  - {weight: 6, ua: "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)"}
+  - {weight: 6, ua: "Mozilla/5.0 AppleWebKit/537.36 (KHTML, like Gecko; compatible; bingbot/2.0; +http://www.bing.com/bingbot.htm) Chrome/{chrome}.0.{chrome_build}.{chrome_patch} Safari/537.36"}
+  - {weight: 5, ua: "Mozilla/5.0 (compatible; AhrefsBot/7.0; +http://ahrefs.com/robot/)"}
+  - {weight: 4, ua: "Mozilla/5.0 (compatible; SemrushBot/7~bl; +http://www.semrush.com/bot.html)"}
+  - {weight: 3, ua: "Mozilla/5.0 (compatible; YandexBot/3.0; +http://yandex.com/bots)"}
+  - {weight: 2, ua: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_5) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.1.1 Safari/605.1.15 (Applebot/0.1; +http://www.apple.com/go/applebot)"}
+  - {weight: 2, ua: "Mozilla/5.0 AppleWebKit/537.36 (KHTML, like Gecko; compatible; GPTBot/1.{rand1}; +https://openai.com/gptbot)"}
+  - {weight: 2, ua: "Mozilla/5.0 (compatible; DotBot/1.2; +https://opensiteexplorer.org/dotbot; help@moz.com)"}
+
+tools:
+  - {weight: 8, ua: "curl/{curl}"}
+  - {weight: 6, ua: "python-requests/{requests}"}
+  - {weight: 4, ua: "Go-http-client/1.1"}
+  - {weight: 2, ua: "Go-http-client/2.0"}
+  - {weight: 2, ua: "Wget/{wget}"}
+  - {weight: 2, ua: "Mozilla/5.0 zgrab/0.x"}
+  - {weight: 1, ua: "Mozilla/5.0 (compatible; CensysInspect/1.1; +https://about.censys.io/)"}
+  - {weight: 1, ua: "Expanse, a Palo Alto Networks company, searches across the global IPv4 space multiple times per day to identify customers&#39; presences on the Internet. If you would like to be excluded from our scans, please send IP addresses/domains to: scaninfo@paloaltonetworks.com"}
+  - {weight: 2, ua: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/{chrome_old}.0.{chrome_build}.{chrome_patch} Safari/537.36"}
+
+# Share of each population, re-weighted per instance.
+mix: {browsers: 62, crawlers: 22, tools: 16}

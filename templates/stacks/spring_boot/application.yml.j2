@@ -1,0 +1,57 @@
+{% set i = ["  ", "  ", "    "]|choice(persona_seed, "yml-indent") %}
+{% if persona.db.engine == "postgres" %}
+{% set jdbc = "jdbc:postgresql://" ~ persona.db.host ~ ":" ~ persona.db.port ~ "/" ~ persona.db.name %}
+{% elif persona.db.engine == "mssql" %}
+{% set jdbc = "jdbc:sqlserver://" ~ persona.db.host ~ ":" ~ persona.db.port ~ ";databaseName=" ~ persona.db.name ~ ";encrypt=true;trustServerCertificate=true" %}
+{% else %}
+{% set jdbc = "jdbc:mysql://" ~ persona.db.host ~ ":" ~ persona.db.port ~ "/" ~ persona.db.name ~ "?useSSL=false&serverTimezone=UTC" %}
+{% endif %}
+server:
+{{ i }}port: {{ [8080, 8080, 8081, 9000]|choice(persona_seed, "port") }}
+{% if persona_seed % 3 == 0 %}
+{{ i }}forward-headers-strategy: framework
+{% endif %}
+
+spring:
+{{ i }}application:
+{{ i }}{{ i }}name: {{ persona.app_name }}
+{{ i }}datasource:
+{{ i }}{{ i }}url: {{ jdbc }}
+{{ i }}{{ i }}username: {{ persona.db.user }}
+{{ i }}{{ i }}password: {{ secret.get("db_password") }}
+{% if persona_seed % 2 %}
+{{ i }}{{ i }}hikari:
+{{ i }}{{ i }}{{ i }}maximum-pool-size: {{ [10, 20, 30]|choice(persona_seed, "pool") }}
+{% endif %}
+{{ i }}jpa:
+{{ i }}{{ i }}hibernate:
+{{ i }}{{ i }}{{ i }}ddl-auto: {{ ["validate", "none", "update"]|choice(persona_seed, "ddl") }}
+{{ i }}{{ i }}open-in-view: false
+{{ i }}mail:
+{{ i }}{{ i }}host: {{ persona.mail.host }}
+{{ i }}{{ i }}port: {{ persona.mail.port }}
+{{ i }}{{ i }}username: {{ cfg.mail_user }}
+{{ i }}{{ i }}password: {{ cfg.mail_password }}
+{% if cfg.has_redis %}
+{{ i }}data:
+{{ i }}{{ i }}redis:
+{{ i }}{{ i }}{{ i }}host: {{ persona.cache.host }}
+{{ i }}{{ i }}{{ i }}port: {{ persona.cache.port }}
+{% if persona.cache.has_password %}
+{{ i }}{{ i }}{{ i }}password: {{ secret.get("redis_password") }}
+{% endif %}
+{% endif %}
+
+management:
+{{ i }}endpoints:
+{{ i }}{{ i }}web:
+{{ i }}{{ i }}{{ i }}exposure:
+{{ i }}{{ i }}{{ i }}{{ i }}include: {{ ['"*"', "health,info,env,metrics", "health,info"]|choice(persona_seed, "actuator") }}
+
+{{ persona.slug|split("-")|first }}:
+{% if note %}
+{{ i }}# {{ note }}
+{% endif %}
+{{ i }}jwt:
+{{ i }}{{ i }}secret: {{ secret.b64("jwt_secret", 64) }}
+{{ i }}{{ i }}expiration: {{ [3600, 86400, 604800]|choice(persona_seed, "jwt-exp") }}

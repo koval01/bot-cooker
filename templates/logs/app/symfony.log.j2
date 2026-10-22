@@ -1,0 +1,8 @@
+{% for e in events %}
+{% set route = "app_" ~ (e.path|trim("/")|replace("/", "_")|replace("-", "_")|replace(".", "_") or "home") %}
+{% if e.status >= 400 %}
+[{{ e.t|strftime("%Y-%m-%dT%H:%M:%S", persona.tz_offset) }}.{{ "%06d"|format(e.micros) }}{{ e.t|strftime("%:z", persona.tz_offset) }}] request.ERROR: Uncaught PHP Exception Symfony\Component\HttpKernel\Exception\NotFoundHttpException: "No route found for \"{{ e.method }} {{ request.base_url }}{{ e.path }}\"" at RouterListener.php line 149 {"exception":"[object] (Symfony\\Component\\HttpKernel\\Exception\\NotFoundHttpException(code: 0): No route found)"} []
+{% else %}
+[{{ e.t|strftime("%Y-%m-%dT%H:%M:%S", persona.tz_offset) }}.{{ "%06d"|format(e.micros) }}{{ e.t|strftime("%:z", persona.tz_offset) }}] request.INFO: Matched route "{{ route }}". {"route":"{{ route }}","route_parameters":{"_route":"{{ route }}"},"request_uri":"{{ request.base_url }}{{ e.path }}","method":"{{ e.method }}"} []
+{% endif %}
+{% endfor %}

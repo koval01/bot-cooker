@@ -1,0 +1,10 @@
+On Monday the team met to plan the next quarter. The main goal is to reduce the time it takes to handle {topic}, and the second goal is to make the numbers easier to read.
+Our partners asked for a clearer picture of how {resource} move through the system. We drew it on a whiteboard first and then turned it into the new overview page.
+The office will be closed for two days next month. Support stays available, but responses may take a little longer than usual.
+We had a small outage on Thursday evening. A configuration change was rolled out too early, it was reverted within twenty minutes and no data was lost.
+A new colleague joined the team this week and will take care of {topic2} together with the people who built it.
+Customers in several countries asked for invoices in their own language. The first translations are ready and more will follow.
+We spent a day cleaning up old {resource} that nobody had touched for years. The archive is still there if anyone needs it.
+After a long discussion we decided to keep the current pricing for existing customers, even when the new plans start next year.
+The warehouse team suggested a change to the way {resource} are labelled. It saved them an hour a day, so we made it the default.
+Next week we will test a new way of sending reminders. Only a small group of accounts will see it at first.

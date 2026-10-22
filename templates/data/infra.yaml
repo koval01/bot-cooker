@@ -1,0 +1,96 @@
+# Infrastructure the persona runs on: runtimes, databases, clouds, mail,
+# time zones, and the places leftovers tend to pile up on a real box.
+
+runtimes:
+  php: ["7.4.33", "8.0.30", "8.1.27..8.1.34", "8.2.20..8.2.34", "8.3.10..8.3.35", "8.4.0..8.4.26", "8.5.0..8.5.11"]
+  python: ["3.10.12..3.10.22", "3.11.9..3.11.17", "3.12.4..3.12.15", "3.13.0..3.13.17", "3.14.0..3.14.9"]
+  ruby: ["3.1.4..3.1.7", "3.2.4..3.2.11", "3.3.4..3.3.12", "3.4.0..3.4.11"]
+  node: ["18.20.4..18.20.8", "20.17.0", "20.20.0..20.20.2", "22.9.0", "22.23.0..22.23.4", "24.22.0|24.22.1"]
+  java: ["11.0.22..11.0.28", "17.0.12..17.0.16", "21.0.4..21.0.8", "25.0.1|25.0.2"]
+  dotnet: ["6.0.33..6.0.36", "8.0.8..8.0.32", "9.0.0..9.0.21", "10.0.0..10.0.13"]
+
+databases:
+  mysql: {versions: ["8.0.30..8.0.46", "8.4.0..8.4.13"], ports: [3306], aliases: [mysql, db, database, db-primary, mysql-master]}
+  mariadb: {versions: ["10.5.9..10.5.29", "10.6.18..10.6.28", "10.11.9..10.11.19", "11.4.2..11.4.13", "11.8.2..11.8.9"], ports: [3306], aliases: [mariadb, mysql, db, database, db-primary]}
+  postgres: {versions: ["13.16..13.23", "14.13..14.24", "15.8..15.19", "16.4..16.15", "17.0..17.11", "18.0..18.6"], ports: [5432, 5432, 5432, 5432, 5432, 5432, 5432, 5432, 5432, 6432], aliases: [postgres, postgresql, db, database, pg-primary]}
+  mssql: {versions: ["15.0.4385", "16.0.4135"], ports: [1433], aliases: [sqlserver, mssql, db, database]}
+
+db_names: ["{short}", "{short}_production", "{short}_prod", "{short}_db", "{short}_app", "{short}_main", app, production, main, website, forge, "db_{short}", "prod_{short}", "live_{short}"]
+db_users: [root, "{short}", "{short}_user", forge, deploy, app, web, dbadmin, www-data, "{short}_rw"]
+# {alias} is one of the engine's usual host names (see databases.*.aliases).
+db_hosts: [localhost, 127.0.0.1, "{internal_ip}", "{internal_ip}", "{host_word}-{rand4}.internal", "{host_word}-{rand4}.local", "{host_word}-{rand4}.svc.cluster.local", "{alias}", "{alias}"]
+cache_hosts: [redis, cache, localhost, 127.0.0.1, redis-master, "{internal_ip}"]
+
+clouds:
+  aws: {weight: 9, regions: [us-east-1, us-west-2, eu-central-1, eu-west-1, eu-west-2, ap-southeast-1]}
+  gcp: {weight: 3, regions: [us-central1, europe-west1, europe-west3, asia-east1]}
+  azure: {weight: 2, regions: [westeurope, northeurope, eastus, uksouth]}
+  digitalocean: {weight: 4, regions: [fra1, ams3, nyc3, lon1, sgp1]}
+  hetzner: {weight: 3, regions: [fsn1, nbg1, hel1, ash]}
+  bare_metal: {weight: 3, regions: [""]}
+
+mail_providers:
+  - {id: mailgun, host: smtp.mailgun.org}
+  - {id: sendgrid, host: smtp.sendgrid.net}
+  - {id: postmark, host: smtp.postmarkapp.com}
+  - {id: ses, host: email-smtp.eu-west-1.amazonaws.com}
+  - {id: mailjet, host: in-v3.mailjet.com}
+  - {id: office365, host: smtp.office365.com}
+  - {id: brevo, host: smtp-relay.brevo.com}
+mail_ports: [587, 587, 465, 2525]
+mail_senders: [noreply, no-reply, hello, info, support, notifications]
+
+# Time zones and the name locales a company there tends to employ / serve.
+timezones:
+  - {name: UTC, offset: 0, locales: {en: 5, de: 1, nl: 1, in: 1, pl: 1}}
+  - {name: Europe/London, offset: 0, locales: {en: 8, in: 1, pl: 1}}
+  - {name: Europe/Dublin, offset: 0, locales: {en: 9, pl: 1}}
+  - {name: Europe/Berlin, offset: 60, locales: {de: 8, en: 1, pl: 1}}
+  - {name: Europe/Amsterdam, offset: 60, locales: {nl: 8, en: 2}}
+  - {name: Europe/Paris, offset: 60, locales: {fr: 9, en: 1}}
+  - {name: Europe/Madrid, offset: 60, locales: {es: 9, en: 1}}
+  - {name: Europe/Rome, offset: 60, locales: {it: 9, en: 1}}
+  - {name: Europe/Warsaw, offset: 60, locales: {pl: 9, ua: 1}}
+  - {name: Europe/Stockholm, offset: 60, locales: {nordic: 9, en: 1}}
+  - {name: Europe/Kyiv, offset: 120, locales: {ua: 9, pl: 1}}
+  - {name: Europe/Helsinki, offset: 120, locales: {nordic: 8, en: 1}}
+  - {name: America/New_York, offset: -300, locales: {en: 8, es: 1, in: 1}}
+  - {name: America/Chicago, offset: -360, locales: {en: 9, es: 1}}
+  - {name: America/Los_Angeles, offset: -480, locales: {en: 7, es: 2, sea: 1}}
+  - {name: America/Toronto, offset: -300, locales: {en: 7, fr: 2, in: 1}}
+  - {name: Asia/Kolkata, offset: 330, locales: {in: 10}}
+  - {name: Asia/Singapore, offset: 480, locales: {sea: 8, in: 2}}
+  - {name: Australia/Sydney, offset: 600, locales: {au: 8, sea: 1, en: 1}}
+
+app_envs: [production, production, production, prod, live]
+app_name_suffixes: [api, web, portal, backend, app]
+hostnames: ["{short}-web-{num2}", "web{num1}", "app{num1}", "www{num1}", "prod{num1}", "node{num1}", "prod-{hex6}", "srv-{hex6}", "vm-{hex6}", "host-{hex6}"]
+
+# Leftovers. Paths are relative to the docroot.
+dotenv_extras: [.env.bak, .env.production, .env.local, .env.save, .env.old, .env~, .env.example]
+dotenv_extra_p: 0.18
+backup_dirs: [/backup/, /backups/, /db/, /, /old/, /sql/, /dump/, /_backup/]
+backup_stems: ["{db}", "{db}_{num1}", "{short}-backup", dump, backup, db, database, latest, export, "{db_dashed}-{index}"]
+backup_exts: [sql, sql, sql, dump]
+access_logs: [/access.log, /logs/access.log, /log/access.log, /logs/access_log]
+access_log_p: 0.55
+error_logs: [/error.log, /logs/error.log, /error_log, /logs/error_log]
+error_log_p: 0.35
+phpinfo_paths: [/phpinfo.php, /info.php, /php_info.php, /test.php, /i.php]
+default_areas: [docs, blog, files, downloads, kb, uploads, static/media, assets/files, help, resources]
+default_sitemaps: {p: 0.65, paths: [/sitemap.xml, /sitemap.xml, /sitemap_index.xml, /sitemap-0.xml]}
+default_feeds: {p: 0.6, paths: [/feed.xml, /rss, /atom.xml, /blog/feed, /rss.xml]}
+default_repos: [backend, api, platform, webapp, web, portal, app, monolith]
+git_hosts: {github.com: 6, gitlab.com: 3, bitbucket.org: 2, self: 2}
+git_org_suffixes: [dev, tech, eng, it, web]
+default_branches: {main: 6, master: 4, develop: 1, production: 1}
+request_ids: {none: 5, x-request-id: 3, x-correlation-id: 1, x-trace-id: 1}
+
+# Operator-added hardening headers: each is present with probability `p`.
+security_headers:
+  - {name: x-frame-options, values: [SAMEORIGIN, DENY, SAMEORIGIN]}
+  - {name: x-content-type-options, values: [nosniff]}
+  - {name: referrer-policy, values: [strict-origin-when-cross-origin, no-referrer-when-downgrade, same-origin]}
+  - {name: strict-transport-security, values: ["max-age=31536000", "max-age=31536000; includeSubDomains", "max-age=63072000; includeSubDomains; preload", "max-age=15768000"]}
+  - {name: x-xss-protection, values: ["1; mode=block", "0"]}
+security_header_p: 0.45

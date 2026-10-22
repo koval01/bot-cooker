@@ -1,0 +1,29 @@
+{% set token = tok.b64url("csrf", 43) %}
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <title>{{ ["Log in!", "Login", "Sign in"]|choice(persona_seed, "login-title") }}</title>
+        <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 128 128%22><text y=%221.2em%22 font-size=%2296%22>⚫️</text></svg>">
+        <link rel="stylesheet" href="{{ assets.files.css.href }}">
+    </head>
+    <body>
+<form method="post">
+{% if failed %}
+        <div class="alert alert-danger">Invalid credentials.</div>
+{% endif %}
+
+    <h1 class="h3 mb-3 font-weight-normal">Please sign in</h1>
+    <label for="username">{{ ["Email", "Username"]|choice(persona_seed, "sf-field") }}</label>
+    <input type="text" value="" name="_username" id="username" class="form-control" autocomplete="username" required autofocus>
+    <label for="password">Password</label>
+    <input type="password" name="_password" id="password" class="form-control" autocomplete="current-password" required>
+
+    <input type="hidden" name="_csrf_token" value="{{ token }}">
+
+    <button class="btn btn-lg btn-primary" type="submit">
+        Sign in
+    </button>
+</form>
+    </body>
+</html>

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+{% if persona.stack == "wordpress" %}
+<?xml-stylesheet type="text/xsl" href="{{ request.base_url }}/wp-sitemap-index.xsl" ?>
+{% endif %}
+<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">{% if persona.stack == "wordpress" %}{% for name in parts %}<sitemap><loc>{{ request.base_url }}{{ name }}</loc></sitemap>{% endfor %}{% else %}
+
+{% for name in parts %}
+  <sitemap>
+    <loc>{{ request.base_url }}{{ name }}</loc>
+    <lastmod>{{ epochs.log_anchor|strftime("%Y-%m-%dT%H:%M:%S%:z", persona.tz_offset) }}</lastmod>
+  </sitemap>
+{% endfor %}
+{% endif %}
+</sitemapindex>

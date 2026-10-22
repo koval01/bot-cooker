@@ -1,0 +1,29 @@
+groups:
+  - name: rails
+    vars:
+      - {key: RAILS_ENV, value: production}
+      - {key: RACK_ENV, value: production, p: 0.5}
+      - {key: SECRET_KEY_BASE, value: "{{ secret.hex('secret_key_base', 128) }}"}
+      - {key: RAILS_MASTER_KEY, value: "{{ secret.hex('rails_master_key', 32) }}", p: 0.4}
+      - {key: RAILS_SERVE_STATIC_FILES, value: "true", p: 0.5}
+      - {key: RAILS_LOG_TO_STDOUT, value: "true", p: 0.5}
+      - {key: RAILS_MAX_THREADS, value: "{{ ['5', '5', '10', '16']|choice(persona_seed, 'threads') }}", p: 0.6}
+      - {key: WEB_CONCURRENCY, value: "{{ ['2', '3', '4']|choice(persona_seed, 'concurrency') }}", p: 0.4}
+  - name: database
+    vars:
+      - {key: DATABASE_URL, value: "{{ cfg.db_url|replace('postgresql://', 'postgres://')|replace('mysql://', 'mysql2://') }}"}
+  - name: redis
+    when: "{{ cfg.has_redis }}"
+    vars:
+      - {key: REDIS_URL, value: "{{ cfg.redis_url }}", p: 0.9}
+      - {key: SIDEKIQ_CONCURRENCY, value: "10", p: 0.3}
+  - name: smtp
+    vars:
+      - {key: SMTP_ADDRESS, value: "{{ persona.mail.host }}"}
+      - {key: SMTP_PORT, value: "{{ persona.mail.port }}"}
+      - {key: SMTP_USERNAME, value: "{{ cfg.mail_user }}"}
+      - {key: SMTP_PASSWORD, value: "{{ cfg.mail_password }}"}
+      - {key: SMTP_DOMAIN, value: "{{ persona.domain }}", p: 0.5}
+  - {name: aws, use: aws, when: "{{ cfg.uses_aws }}", region_key: AWS_REGION}
+  - {name: stripe, use: stripe, when: "{{ persona.industry.sells_online }}"}
+  - {name: misc, use: misc}

@@ -1,0 +1,5 @@
+{% import "sql/mssql/macros.j2" as m %}
+{% for row in rows %}
+INSERT [dbo].[{{ table.name }}] ({% for c in table.columns %}[{{ c.name }}]{{ ", " if not loop.last }}{% endfor %}) VALUES ({% for cell in row %}{{ m.lit(cell) }}{{ ", " if not loop.last }}{% endfor %})
+{% endfor %}
+GO

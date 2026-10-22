@@ -1,0 +1,44 @@
+{% set q = style.php_double_quotes %}
+{% set open, close = ("[", "]") if style.php_short_arrays else ("array(", ")") %}
+{% set driver = "pgsql" if persona.db.engine == "postgres" else "mysql" %}
+{% set i = style.indent %}
+<?php
+
+// phpcs:ignoreFile
+
+{% if persona_seed % 3 == 0 %}
+/**
+ * @file
+ * Drupal site-specific configuration file.
+ */
+
+{% endif %}
+$databases['default']['default'] = {{ open }}
+{{ i }}{{ "database"|php(q) }} => {{ persona.db.name|php(q) }},
+{{ i }}{{ "username"|php(q) }} => {{ persona.db.user|php(q) }},
+{{ i }}{{ "password"|php(q) }} => {{ secret.get("db_password")|php(q) }},
+{{ i }}{{ "prefix"|php(q) }} => {{ ""|php(q) }},
+{{ i }}{{ "host"|php(q) }} => {{ persona.db.host|php(q) }},
+{{ i }}{{ "port"|php(q) }} => {{ (persona.db.port ~ "")|php(q) }},
+{% if v.framework_major >= 9 %}
+{{ i }}{{ "isolation_level"|php(q) }} => {{ "READ COMMITTED"|php(q) }},
+{{ i }}{{ "namespace"|php(q) }} => {{ ("Drupal\\" ~ driver ~ "\\Driver\\Database\\" ~ driver)|php(q) }},
+{{ i }}{{ "autoload"|php(q) }} => {{ ("core/modules/" ~ driver ~ "/src/Driver/Database/" ~ driver ~ "/")|php(q) }},
+{% endif %}
+{{ i }}{{ "driver"|php(q) }} => {{ driver|php(q) }},
+{{ close }};
+$settings['hash_salt'] = {{ secret.b64url("drupal_salt", 55)|php(q) }};
+$settings['update_free_access'] = FALSE;
+{% if v.framework_major >= 9 %}
+$settings['config_sync_directory'] = 'sites/default/files/config_{{ secret.b64url("drupal_sync", 55) }}/sync';
+{% endif %}
+$settings['trusted_host_patterns'] = {{ open }}
+{{ i }}'^{{ persona.domain|replace(".", "\\.") }}$',
+{{ i }}'^www\\.{{ persona.domain|replace(".", "\\.") }}$',
+{{ close }};
+{% if persona_seed % 2 %}
+$settings['file_private_path'] = '../private';
+{% endif %}
+{% if note %}
+// {{ note }}
+{% endif %}

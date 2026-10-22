@@ -1,0 +1,83 @@
+[package]
+name = "bot-cooker"
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.99"
+default-run = "bot-cooker"
+description = "A defensive HTTP tarpit: raises the cost of automated scanning by answering it slowly with convincing decoy content."
+license = "Apache-2.0"
+repository = "https://github.com/koval01/bot-cooker"
+homepage = "https://koval01.github.io/bot-cooker/"
+documentation = "https://koval01.github.io/bot-cooker/"
+readme = "README.md"
+keywords = ["tarpit", "honeypot", "deception", "security", "defense"]
+categories = ["web-programming", "network-programming"]
+
+[lib]
+name = "bot_cooker"
+path = "src/lib.rs"
+
+[[bin]]
+name = "bot-cooker"
+path = "src/main.rs"
+
+# Offline content-pack generator (calls the Claude API). Built only with
+# `--features pack`, so the trap binary contains no HTTP client at all.
+[[bin]]
+name = "cooker-pack"
+path = "src/bin/cooker-pack.rs"
+required-features = ["pack"]
+
+[features]
+pack = ["dep:ureq"]
+
+[dependencies]
+# Async runtime; HTTP/1.1 is spoken by src/wire in each front server's
+# dialect (TLS is terminated by the reverse proxy — see README).
+tokio = { version = "1", features = ["rt-multi-thread", "macros", "net", "io-util", "signal", "time", "sync"] }
+http = "1"
+httparse = "1"
+
+# Serde / config
+serde = { version = "1", features = ["derive"] }
+serde_norway = "0.9"
+serde_json = { version = "1", features = ["preserve_order"] }
+
+# Templates: one engine for every artifact; the catalog is embedded at build
+# time and can be overlaid from disk.
+minijinja = { version = "3", features = ["serde", "json", "loop_controls", "preserve_order"] }
+include_dir = "0.7"
+
+# Deterministic deception generation
+rand = "0.10"
+rand_chacha = "0.10"
+sha2 = "0.11"
+hmac = "0.13"
+
+# State
+dashmap = "6"
+
+# Only for the offline pack tool (feature `pack`).
+ureq = { version = "3", optional = true }
+
+# Logging + CLI
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+anyhow = "1"
+clap = { version = "4", features = ["derive"] }
+
+# Raising the open-files limit at startup (Unix).
+[target.'cfg(unix)'.dependencies]
+rlimit = "0.11"
+
+# Running as a Windows service (`bot-cooker --service`).
+[target.'cfg(windows)'.dependencies]
+windows-service = "0.8"
+
+[profile.release]
+opt-level = 3
+lto = "thin"
+codegen-units = 1
+strip = true
+# NB: no `panic = "abort"`: a panic stays inside its connection's task (tokio
+# isolates it) instead of taking the whole long-running tarpit down.

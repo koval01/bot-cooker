@@ -1,0 +1,15 @@
+If you cannot sign in, check that you are using the address you registered with and that caps lock is off. After five failed attempts the account is locked for fifteen minutes to protect it.
+Most questions about {topic} are answered in the help center, but our support team is happy to look at your account directly when something does not add up.
+When you write to us, include a short description of what you expected to happen and what happened instead. Screenshots help more than long explanations.
+We answer messages in the order they arrive. Urgent issues that affect your whole team are moved to the front of the queue.
+Some changes to {resource} take a few minutes to appear everywhere. If a change is still missing after an hour, let us know.
+You can invite colleagues from the team page. Each invitation is valid for a week and can be sent again if it expires.
+Notifications can be turned off per channel. Email digests are sent once a day, at the time you choose in your profile.
+If you are moving from another tool, we can help you import your existing {resource}. Send us an export and we will check it before anything is changed.
+Billing questions are handled by a separate team, so please mention your invoice number when you contact them.
+We keep a public record of incidents. When something breaks, the status page is updated first and the full report follows within a few days.
+Passwords must be at least twelve characters long. We also recommend turning on two-step verification for every account with admin rights.
+Deleting an account removes all personal data after thirty days. During that time the account can still be restored on request.
+The mobile app uses the same account as the web version. Changes made on one device show up on the others within seconds.
+For larger teams we offer a dedicated contact who knows your setup and can help plan changes to {topic2} ahead of time.
+Exports include every field that you can see in the list view. Hidden columns are not exported unless you show them first.

@@ -1,0 +1,12 @@
+This page explains how {topic} works in {product} and what you need to configure before you start. Most settings have sensible defaults, so you can skip the advanced section on a first read.
+Before you begin, make sure your account has access to {resource}. Administrators can grant access from the settings page. Changes take effect the next time you sign in.
+To import {resource}, open the import screen, choose a file and map the columns. The importer checks every row and shows the rows it could not read. You can fix them in the file and import again without creating duplicates.
+Exports run in the background. When an export is ready you receive an email with a link that stays valid for seven days. Large exports are split into several files.
+If a request fails, the error message contains a reference number. Please include it when you contact support, together with the time of the request and the steps that led to the error.
+Rate limits protect the service for everyone. If you send too many requests in a short time you receive an error and should retry after a short pause. The limits are generous for normal use.
+Webhooks notify your system when {resource} change. Each delivery is signed, and failed deliveries are retried with an increasing delay for up to three days.
+Permissions are based on roles. A role defines what a user can see and change. Custom roles are available on larger plans and can be limited to specific {resource}.
+Data is stored in the region you selected when the account was created. Backups are encrypted and kept for thirty days. Deleted {resource} can be restored by support within that period.
+This article was last reviewed by our team. If something is unclear or out of date, use the feedback link at the bottom of the page and we will update it.
+The {topic} settings apply to all users in your organisation. Individual users can override some of them in their profile, for example the language and the time zone.
+For questions about billing, invoices and {topic2}, see the billing section. Invoices are issued at the start of each period and can be downloaded as PDF.

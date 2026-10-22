@@ -1,0 +1,7 @@
+-- MariaDB dump 10.19  Distrib {{ v.db }}-MariaDB, for debian-linux-gnu (x86_64)
+--
+-- Host: {{ "localhost" if host_is_local else persona.db.host }}    Database: {{ persona.db.name }}
+-- ------------------------------------------------------
+-- Server version	{{ v.db }}-MariaDB-{{ ["0+deb12u1", "1:" ~ v.db ~ "+maria~ubu2204", "log", "0ubuntu0.22.04.1"]|choice(persona_seed, "mariadb-build") }}
+
+{% include "sql/mysql/sets.sql.j2" %}

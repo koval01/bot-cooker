@@ -1,0 +1,28 @@
+{% set j4 = v.framework_major >= 4 %}
+{% set fields = [
+  ("offline", "0"), ("offline_message", "This site is down for maintenance.<br>Please check back again soon."), ("display_offline_message", "1"),
+  ("offline_image", ""), ("sitename", persona.company), ("editor", ["tinymce", "tinymce", "codemirror", "none"]|choice(persona_seed, "jm-editor")),
+  ("captcha", "0"), ("list_limit", ["20", "20", "30", "50"]|choice(persona_seed, "jm-limit")), ("access", "1"), ("debug", "0"), ("debug_lang", "0"),
+  ("debug_lang_const", "1"), ("dbtype", "mysqli" if j4 else ["mysqli", "pdomysql"]|choice(persona_seed, "jm-dbtype")),
+  ("host", persona.db.host), ("user", persona.db.user), ("password", secret.get("db_password")), ("db", persona.db.name),
+  ("dbprefix", persona.db.table_prefix), ("dbencryption", "0") if j4 else none, ("live_site", ""), ("secret", secret.alnum("joomla_secret", 16)),
+  ("gzip", "0"), ("error_reporting", persona.php_errors.setting if persona.php_errors else ["default", "none", "simple"]|choice(persona_seed, "jm-errors")),
+  ("helpurl", "https://help.joomla.org/proxy?keyref=Help{major}{minor}:{keyref}&lang={langcode}"),
+  ("offset", persona.tz_name), ("mailonline", "1"), ("mailer", "smtp"), ("mailfrom", persona.mail.from), ("fromname", persona.company),
+  ("sendmail", "/usr/sbin/sendmail"), ("smtpauth", "1"), ("smtpuser", cfg.mail_user), ("smtppass", cfg.mail_password),
+  ("smtphost", persona.mail.host), ("smtpsecure", "ssl" if persona.mail.port == 465 else "tls"), ("smtpport", persona.mail.port ~ ""),
+  ("caching", "0"), ("cache_handler", "file"), ("cachetime", "15"), ("cache_platformprefix", "0") if persona_seed % 2 else none,
+  ("MetaDesc", persona.company ~ ["", " — official website", " | " ~ persona.industry.id]|choice(persona_seed, "jm-meta")),
+  ("MetaAuthor", "1"), ("MetaVersion", "0"), ("robots", ""), ("sef", "1"), ("sef_rewrite", ["1", "0"]|choice(persona_seed, "jm-rewrite")),
+  ("sef_suffix", "0"), ("unicodeslugs", "0"), ("feed_limit", "10"), ("feed_email", "none"),
+  ("log_path", docroot ~ "/administrator/logs"), ("tmp_path", docroot ~ "/tmp"), ("lifetime", ["15", "30", "60"]|choice(persona_seed, "jm-life")),
+  ("session_handler", "database"), ("shared_session", "0"), ("session_metadata", "1") if persona_seed % 3 else none,
+  ("force_ssl", "2") if persona_seed % 4 < 2 else none, ("massmailoff", "0") if persona_seed % 5 < 2 else none,
+  ("proxy_enable", "0"), ("frontediting", "1") if persona_seed % 2 == 0 else none, ("behind_loadbalancer", "0") if j4 else none, ("cors", "0") if j4 else none,
+] %}
+<?php
+class JConfig {
+{% for f in fields if f %}
+{{ style.indent }}public ${{ f[0] }} = '{{ f[1]|replace("'", "\\'") }}';
+{% endfor %}
+}

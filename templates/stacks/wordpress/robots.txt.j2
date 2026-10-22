@@ -1,0 +1,10 @@
+User-agent: *
+Disallow: /wp-admin/
+Allow: /wp-admin/admin-ajax.php
+{% for path in disallow %}
+Disallow: {{ path }}
+{% endfor %}
+{% if sitemap %}
+
+Sitemap: {{ sitemap }}
+{% endif %}

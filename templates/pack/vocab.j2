@@ -1,0 +1,13 @@
+The company is {{ persona.company }} ({{ persona.industry.id }}), its software runs on {{ persona.stack_name }}. Its developers are {{ persona.staff[:5]|map(attribute="first")|join(", ") }}.
+
+Produce the small vocabularies its people use in code comments and commit messages, written the way this particular team would write them:
+
+- todo: 12 short TODO notes left in config files (without the "TODO:" prefix)
+- fixme: 8 short FIXME notes (without the prefix)
+- aside: 12 short asides people leave above config values ("used by the nightly import" style)
+- commit_verbs: 20 lowercase verbs or verb phrases that start commit messages
+- commit_objects: 30 things in this company's codebase that commits touch (lowercase, specific to its industry and product)
+- commit_tails: 15 short endings for commit messages (may be empty strings; may use {resource})
+- markers: 15 short sentence openers this company's writers like (no trailing comma)
+
+Keep every item short (at most 60 characters), plain ASCII, no quotes.

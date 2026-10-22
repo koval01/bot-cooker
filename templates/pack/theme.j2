@@ -1,0 +1,25 @@
+Write a MiniJinja (Jinja2-compatible) HTML template for the public website of {{ persona.company }} ({{ persona.industry.id }}). It must look like this company's own site: its own markup structure, class names and section names, not a known framework's demo. Plain semantic HTML; class names of your own invention; no external scripts.
+
+The template receives these variables:
+- home (bool): true on the front page
+- heading (string): the page heading
+- paragraphs (list of strings): body paragraphs
+- links (list of objects with href, title, time): related pages; time is a unix timestamp
+- nav (list of objects with href, label): site sections
+- tagline (string): a one-line description, may be empty
+- persona.company (string), site.login_path (string)
+- epochs.cfg_anchor (unix timestamp, use for the copyright year)
+
+Filters available besides the Jinja builtins: strftime(format) for timestamps, e.g. {{ "{{" }} link.time|strftime("%B %e, %Y") {{ "}}" }}. Output is HTML-escaped automatically.
+
+Requirements:
+- Start with <!DOCTYPE html>.
+- Inside <head>, include exactly: {{ "{%" }} include "site/_head.html.j2" {{ "%}" }} (it writes the charset, viewport, title and stylesheet tags).
+- Render heading, all paragraphs, all links (each linking to its href), all nav items, and a link to site.login_path.
+- Use every variable only as described; do not invent others.
+- Keep it between 40 and 120 lines.
+
+{% if error %}
+Your previous template failed to render with this error; fix it:
+{{ error }}
+{% endif %}

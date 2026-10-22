@@ -1,0 +1,11 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML 2.0//EN">
+<html><head>
+<title>301 Moved Permanently</title>
+</head><body>
+<h1>Moved Permanently</h1>
+<p>The document has moved <a href="{{ location }}">here</a>.</p>
+{% if "/" in (web.server_banner or "") %}
+<hr>
+<address>{{ web.server_banner }} Server at {{ request.server_name }} Port {{ request.port }}</address>
+{% endif %}
+</body></html>

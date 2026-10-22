@@ -1,0 +1,39 @@
+groups:
+  - name: app
+    vars:
+      - {key: NODE_ENV, value: production}
+      - {key: PORT, value: "{{ ['3000', '3000', '8080', '5000', '4000']|choice(persona_seed, 'port') }}"}
+      - {key: HOST, value: 0.0.0.0, p: 0.3}
+      - {key: APP_URL, value: "https://{{ persona.domain }}", p: 0.5}
+      - {key: LOG_LEVEL, value: "{{ ['info', 'warn', 'debug']|choice(persona_seed, 'log-level') }}", p: 0.6}
+      - {key: CORS_ORIGIN, value: "https://{{ persona.domain }}", p: 0.5}
+  - name: db
+    vars:
+      - {key: DATABASE_URL, value: "{{ cfg.db_url }}", when: "{{ persona_seed % 2 == 0 }}"}
+      - {key: DB_HOST, value: "{{ persona.db.host }}", when: "{{ persona_seed % 2 == 1 }}"}
+      - {key: DB_PORT, value: "{{ persona.db.port }}", when: "{{ persona_seed % 2 == 1 }}"}
+      - {key: DB_NAME, value: "{{ persona.db.name }}", when: "{{ persona_seed % 2 == 1 }}"}
+      - {key: DB_USER, value: "{{ persona.db.user }}", when: "{{ persona_seed % 2 == 1 }}"}
+      - {key: DB_PASS, value: "{{ secret.get('db_password') }}", when: "{{ persona_seed % 2 == 1 }}"}
+      - {key: DB_POOL_MAX, value: "10", p: 0.3}
+  - name: redis
+    when: "{{ cfg.has_redis }}"
+    vars:
+      - {key: REDIS_URL, value: "{{ cfg.redis_url }}", p: 0.9}
+  - name: auth
+    vars:
+      - {key: JWT_SECRET, value: "{{ secret.hex('jwt_secret', 64) }}"}
+      - {key: JWT_EXPIRES_IN, value: "{{ ['1d', '7d', '3600', '24h']|choice(persona_seed, 'jwt-exp') }}", p: 0.6}
+      - {key: SESSION_SECRET, value: "{{ secret.get('session_secret') }}", p: 0.5}
+  - name: smtp
+    vars:
+      - {key: SMTP_HOST, value: "{{ persona.mail.host }}"}
+      - {key: SMTP_PORT, value: "{{ persona.mail.port }}"}
+      - {key: SMTP_USER, value: "{{ cfg.mail_user }}"}
+      - {key: SMTP_PASS, value: "{{ cfg.mail_password }}"}
+  - {name: aws, use: aws, when: "{{ cfg.uses_aws }}", region_key: AWS_REGION}
+  - name: monitoring
+    vars:
+      - {key: SENTRY_DSN, value: "{{ cfg.sentry_dsn }}", p: 0.5}
+  - {name: stripe, use: stripe, when: "{{ persona.industry.sells_online }}"}
+  - {name: misc, use: misc}

@@ -1,0 +1,69 @@
+groups:
+  - name: app
+    vars:
+      - {key: APP_NAME, value: "{{ persona.app_name if ' ' not in persona.app_name else persona.app_name|replace(' ', '') }}"}
+      - {key: APP_ENV, value: "{{ persona.app_env }}"}
+      - {key: APP_KEY, value: "base64:{{ secret.b64('app_key', 43) }}="}
+      - {key: APP_DEBUG, value: "{{ 'true' if persona_seed % 9 == 0 else 'false' }}"}
+      - {key: APP_TIMEZONE, value: "{{ persona.tz_name }}", p: 0.7, when: "{{ v.framework_major >= 11 }}"}
+      - {key: APP_URL, value: "https://{{ persona.domain }}"}
+      - {key: APP_LOCALE, value: en, p: 0.6, when: "{{ v.framework_major >= 11 }}"}
+      - {key: APP_FALLBACK_LOCALE, value: en, p: 0.5, when: "{{ v.framework_major >= 11 }}"}
+      - {key: APP_MAINTENANCE_DRIVER, value: file, p: 0.5, when: "{{ v.framework_major >= 11 }}"}
+      - {key: BCRYPT_ROUNDS, value: "12", p: 0.5, when: "{{ v.framework_major >= 11 }}"}
+  - name: log
+    vars:
+      - {key: LOG_CHANNEL, value: "{{ ['stack', 'daily', 'stack', 'stderr']|choice(persona_seed, 'log-channel') }}"}
+      - {key: LOG_STACK, value: single, p: 0.6, when: "{{ v.framework_major >= 11 }}"}
+      - {key: LOG_DEPRECATIONS_CHANNEL, value: "null", p: 0.7}
+      - {key: LOG_LEVEL, value: "{{ ['debug', 'error', 'warning', 'info']|choice(persona_seed, 'log-level') }}"}
+  - name: database
+    vars:
+      - {key: DB_CONNECTION, value: "{% if persona.db.engine == 'postgres' %}pgsql{% elif persona.db.engine == 'mssql' %}sqlsrv{% elif persona.db.engine == 'mariadb' and v.framework_major >= 11 %}mariadb{% else %}mysql{% endif %}"}
+      - {key: DB_HOST, value: "{{ persona.db.host }}"}
+      - {key: DB_PORT, value: "{{ persona.db.port }}"}
+      - {key: DB_DATABASE, value: "{{ persona.db.name }}"}
+      - {key: DB_USERNAME, value: "{{ persona.db.user }}"}
+      - {key: DB_PASSWORD, value: "{{ secret.get('db_password') }}"}
+  - name: drivers
+    vars:
+      - {key: BROADCAST_DRIVER, value: log, p: 0.8, when: "{{ v.framework_major < 11 }}"}
+      - {key: BROADCAST_CONNECTION, value: log, p: 0.8, when: "{{ v.framework_major >= 11 }}"}
+      - {key: "{{ 'CACHE_STORE' if v.framework_major >= 11 else 'CACHE_DRIVER' }}", value: "{{ 'redis' if cfg.has_redis else ['file', 'database']|choice(persona_seed, 'cache') }}"}
+      - {key: FILESYSTEM_DISK, value: "{{ 's3' if cfg.uses_aws else 'local' }}", p: 0.8}
+      - {key: QUEUE_CONNECTION, value: "{{ 'redis' if cfg.has_redis else ['database', 'sync']|choice(persona_seed, 'queue') }}"}
+      - {key: SESSION_DRIVER, value: "{{ 'redis' if cfg.has_redis else ['file', 'database', 'cookie']|choice(persona_seed, 'session') }}"}
+      - {key: SESSION_LIFETIME, value: "{{ ['120', '120', '240', '480', '1440']|choice(persona_seed, 'lifetime') }}"}
+      - {key: SESSION_ENCRYPT, value: "false", p: 0.6, when: "{{ v.framework_major >= 11 }}"}
+      - {key: SESSION_DOMAIN, value: "null", p: 0.4}
+      - {key: MEMCACHED_HOST, value: 127.0.0.1, p: 0.3}
+  - name: redis
+    when: "{{ cfg.has_redis }}"
+    vars:
+      - {key: REDIS_CLIENT, value: phpredis, p: 0.5}
+      - {key: REDIS_HOST, value: "{{ persona.cache.host }}"}
+      - {key: REDIS_PASSWORD, value: "{{ secret.get('redis_password') if persona.cache.has_password else 'null' }}"}
+      - {key: REDIS_PORT, value: "{{ persona.cache.port }}"}
+  - name: mail
+    vars:
+      - {key: MAIL_MAILER, value: smtp}
+      - {key: MAIL_HOST, value: "{{ persona.mail.host }}"}
+      - {key: MAIL_PORT, value: "{{ persona.mail.port }}"}
+      - {key: MAIL_USERNAME, value: "{{ cfg.mail_user }}"}
+      - {key: MAIL_PASSWORD, value: "{{ cfg.mail_password }}"}
+      - {key: MAIL_ENCRYPTION, value: "{{ 'ssl' if persona.mail.port == 465 else 'tls' }}", p: 0.8}
+      - {key: MAIL_FROM_ADDRESS, value: "{{ persona.mail.from }}"}
+      - {key: MAIL_FROM_NAME, value: "${APP_NAME}"}
+  - name: aws
+    when: "{{ cfg.uses_aws }}"
+    use: aws
+    region_key: AWS_DEFAULT_REGION
+  - name: pusher
+    vars:
+      - {key: PUSHER_APP_ID, value: "{{ tok.int('pusher', 1000000, 1999999) }}", p: 0.3}
+      - {key: PUSHER_APP_KEY, value: "{{ secret.hex('pusher_key', 20) }}", p: 0.3}
+      - {key: PUSHER_APP_SECRET, value: "{{ secret.hex('pusher_secret', 20) }}", p: 0.3}
+      - {key: PUSHER_APP_CLUSTER, value: "{{ ['eu', 'mt1', 'ap1', 'us2']|choice(persona_seed, 'pusher') }}", p: 0.3}
+      - {key: VITE_APP_NAME, value: "${APP_NAME}", p: 0.5}
+  - {name: stripe, use: stripe, when: "{{ persona.industry.sells_online }}"}
+  - {name: misc, use: misc}

@@ -1,0 +1,3 @@
+{{ {"data": "MARKER",
+  "links": {"first": link(1), "last": link(pages), "prev": link(page - 1), "next": link(page + 1)},
+  "meta": {"current_page": page, "from": first if on_page else none, "last_page": pages, "path": base, "per_page": per_page, "to": (first + on_page - 1) if on_page else none, "total": total}}|json(api_json) }}

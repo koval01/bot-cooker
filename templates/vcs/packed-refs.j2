@@ -1,0 +1,4 @@
+# pack-refs with: peeled fully-peeled sorted 
+{% for r in refs %}
+{{ r.sha }} {{ r.name }}
+{% endfor %}

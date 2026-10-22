@@ -1,0 +1,4 @@
+{% for c in commits %}
+{{ c.parent }} {{ c.sha }} {{ c.author }} <{{ c.email }}> {{ c.time }} {{ c.time|strftime("%z", persona.tz_offset) }}	{% if loop.first %}clone: from {{ site.git_remote }}{% elif c.n % 10 == 0 %}pull: Fast-forward{% elif c.n % 10 == 1 %}merge origin/{{ ["develop", "hotfix", "release"][c.n % 3] }}: Fast-forward{% else %}commit: {{ c.subject }}{% endif %}
+
+{% endfor %}

@@ -1,0 +1,28 @@
+groups:
+  - name: symfony/framework-bundle
+    vars:
+      - {key: APP_ENV, value: prod}
+      - {key: APP_SECRET, value: "{{ secret.hex('app_secret', 32) }}"}
+      - {key: TRUSTED_PROXIES, value: "127.0.0.0/8,10.0.0.0/8,172.16.0.0/12,192.168.0.0/16", p: 0.4}
+  - name: doctrine/doctrine-bundle
+    vars:
+      - {key: DATABASE_URL, value: "{{ cfg.db_url }}?serverVersion={{ v.db }}&charset={{ 'utf8' if persona.db.engine == 'postgres' else 'utf8mb4' }}"}
+  - name: symfony/messenger
+    vars:
+      - {key: MESSENGER_TRANSPORT_DSN, value: "{{ cfg.redis_url|replace('/0', '/messages') if cfg.has_redis else 'doctrine://default?auto_setup=0' }}", p: 0.7}
+  - name: symfony/mailer
+    vars:
+      - {key: MAILER_DSN, value: "smtp://{{ cfg.mail_user|replace('@', '%40') }}:{{ cfg.mail_password }}@{{ persona.mail.host }}:{{ persona.mail.port }}"}
+  - name: nelmio/cors-bundle
+    vars:
+      - {key: CORS_ALLOW_ORIGIN, value: "'^https?://({{ persona.domain|replace('.', '\\\\.') }}|localhost)(:[0-9]+)?$'", p: 0.5}
+  - name: lexik/jwt-authentication-bundle
+    vars:
+      - {key: JWT_SECRET_KEY, value: "%kernel.project_dir%/config/jwt/private.pem", p: 0.4}
+      - {key: JWT_PUBLIC_KEY, value: "%kernel.project_dir%/config/jwt/public.pem", p: 0.4}
+      - {key: JWT_PASSPHRASE, value: "{{ secret.hex('jwt_pass', 32) }}", p: 0.4}
+  - name: symfony/lock
+    vars:
+      - {key: LOCK_DSN, value: flock, p: 0.4}
+  - {name: stripe, use: stripe, when: "{{ persona.industry.sells_online }}"}
+  - {name: misc, use: misc}

@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Log in - {{ persona.app_name }}</title>
+    <link rel="stylesheet" href="{{ assets.files.bootstrap.href }}" />
+    <link rel="stylesheet" href="{{ assets.files.css.href }}" />
+</head>
+<body>
+    <div class="container">
+        <main role="main" class="pb-3">
+<h1>Log in</h1>
+<div class="row">
+    <div class="col-md-4">
+        <section>
+            <form id="account" method="post">
+                <h2>Use a local account to log in.</h2>
+                <hr />
+{% if failed %}
+                <div class="text-danger validation-summary-errors" role="alert"><ul><li>Invalid login attempt.</li>
+</ul></div>
+{% else %}
+                <div class="text-danger validation-summary-valid" role="alert"><ul><li style="display:none"></li>
+</ul></div>
+{% endif %}
+                <div class="form-floating mb-3">
+                    <input class="form-control" autocomplete="username" aria-required="true" placeholder="name@example.com" type="email" data-val="true" data-val-email="The Email field is not a valid e-mail address." data-val-required="The Email field is required." id="Input_Email" name="Input.Email" value="" />
+                    <label class="form-label" for="Input_Email">Email</label>
+                </div>
+                <div class="form-floating mb-3">
+                    <input class="form-control" autocomplete="current-password" aria-required="true" placeholder="password" type="password" data-val="true" data-val-required="The Password field is required." id="Input_Password" name="Input.Password" />
+                    <label class="form-label" for="Input_Password">Password</label>
+                </div>
+                <div>
+                    <button id="login-submit" type="submit" class="w-100 btn btn-lg btn-primary">Log in</button>
+                </div>
+            <input name="__RequestVerificationToken" type="hidden" value="CfDJ8{{ tok.b64url("csrf", 150) }}" /></form>
+        </section>
+    </div>
+</div>
+        </main>
+    </div>
+</body>
+</html>

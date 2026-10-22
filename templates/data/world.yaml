@@ -1,0 +1,26 @@
+# Shapes of the instance's "database": who the users are and what business
+# records look like. Values are generated per (persona, id); this file only
+# says which fields exist and what vocabularies they draw from.
+
+email_domains: [gmail.com, gmail.com, outlook.com, yahoo.com, hotmail.com, icloud.com, proton.me, gmx.de, web.de, mail.com]
+staff_roles: [admin, editor, manager, support, developer]
+customer_roles: [customer, customer, customer, user, subscriber]
+currencies: [EUR, USD, GBP]
+phone_codes: [1, 44, 49, 31, 33, 380, 61]
+api_key_names: [production, ci, zapier, mobile, backend]
+title_words: [update, notes, overview, report, guide]
+
+# Field sets per kind of resource; `owner: true` adds a user_id column.
+record_shapes:
+  - {resources: [products, parts, courses, hotels, warehouses, routes, carriers, suppliers, workspaces], owner: true, fields: [name, sku, price]}
+  - {resources: [patients, students, clients, travellers, subscribers, customers, drivers, practitioners, instructors, authors], owner: false, fields: [first_name, last_name, email, phone]}
+  - {resources: [api_keys], owner: true, fields: [key_name, token]}
+  - {resources: [events, comments, articles, issues, posts, pages], owner: true, fields: [title, slug]}
+default_shape: {resources: [], owner: true, fields: [reference, total, currency]}
+
+statuses:
+  - {resources: [orders, shipments, bookings, work_orders], values: [pending, processing, shipped, completed, cancelled, refunded]}
+  - {resources: [invoices, statements, claims, transactions, payments], values: [draft, open, paid, overdue, void]}
+  - {resources: [appointments, enrollments], values: [scheduled, confirmed, completed, no_show, cancelled]}
+  - {resources: [subscriptions, accounts, loans], values: [active, trialing, past_due, cancelled]}
+default_statuses: [active, active, inactive, archived]

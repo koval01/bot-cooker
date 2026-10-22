@@ -1,0 +1,4 @@
+# Templates are embedded byte for byte: a CRLF checkout on Windows would make
+# a Windows-built trap answer differently from a Linux-built one.
+* text=auto eol=lf
+*.ps1 text eol=crlf

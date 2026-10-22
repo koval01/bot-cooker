@@ -1,0 +1,37 @@
+{#- mod_autoindex with Debian/Ubuntu's autoindex.conf (FancyIndexing
+    VersionSort HTMLTable): icons by type, sizes by apr_strfsize, the title
+    without the trailing slash. -#}
+{% macro icon(e) -%}
+{% set ext = (e.name|lower|split("."))|last if "." in e.name else "" %}
+{% if e.dir %}<img src="/icons/folder.gif" alt="[DIR]">
+{%- elif ext in ["txt", "log", "csv", "conf", "ini", "text", "list"] %}<img src="/icons/text.gif" alt="[TXT]">
+{%- elif ext in ["png", "jpg", "jpeg", "gif", "webp", "bmp", "ico"] %}<img src="/icons/image2.gif" alt="[IMG]">
+{%- elif ext in ["gz", "tgz", "zip", "z", "bz2", "xz", "7z"] %}<img src="/icons/compressed.gif" alt="[   ]">
+{%- elif ext in ["pdf", "html", "htm", "shtml"] %}<img src="/icons/layout.gif" alt="[   ]">
+{%- elif ext in ["sh", "csh", "ksh", "tcl"] %}<img src="/icons/script.gif" alt="[   ]">
+{%- elif ext in ["bin", "exe"] %}<img src="/icons/binary.gif" alt="[   ]">
+{%- elif ext in ["tar"] %}<img src="/icons/tar.gif" alt="[   ]">
+{%- else %}<img src="/icons/unknown.gif" alt="[   ]">
+{%- endif %}
+{%- endmacro %}
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<html>
+ <head>
+  <title>Index of {{ dir|trim("/") and dir[:-1] or dir }}</title>
+ </head>
+ <body>
+<h1>Index of {{ dir|trim("/") and dir[:-1] or dir }}</h1>
+  <table>
+   <tr><th valign="top"><img src="/icons/blank.gif" alt="[ICO]"></th><th><a href="?C=N;O=D">Name</a></th><th><a href="?C=M;O=A">Last modified</a></th><th><a href="?C=S;O=A">Size</a></th><th><a href="?C=D;O=A">Description</a></th></tr>
+   <tr><th colspan="5"><hr></th></tr>
+<tr><td valign="top"><img src="/icons/back.gif" alt="[PARENTDIR]"></td><td><a href="{{ parent }}">Parent Directory</a></td><td>&nbsp;</td><td align="right">  - </td><td>&nbsp;</td></tr>
+{% for e in entries|sort(attribute="name", case_sensitive=true) %}
+{% set shown = e.name ~ ("/" if e.dir else "") %}
+<tr><td valign="top">{{ icon(e) }}</td><td><a href="{{ shown }}">{{ shown }}</a></td><td align="right">{{ e.mtime|strftime("%Y-%m-%d %H:%M", persona.tz_offset) }}  </td><td align="right">{{ "  - " if e.dir else e.size|human_size("apache") }}</td><td>&nbsp;</td></tr>
+{% endfor %}
+   <tr><th colspan="5"><hr></th></tr>
+</table>
+{% if "/" in (web.server_banner or "") %}
+<address>{{ web.server_banner }} Server at {{ request.server_name }} Port {{ request.port }}</address>
+{% endif %}
+</body></html>

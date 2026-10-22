@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+<channel>
+	<title>{{ persona.company }}</title>
+	<atom:link href="{{ request.base_url }}{{ request.path }}" rel="self" type="application/rss+xml" />
+	<link>{{ request.base_url }}/</link>
+	<description>{{ tagline }}</description>
+	<lastBuildDate>{{ posts[0].time|strftime("%a, %d %b %Y %H:%M:%S %z", persona.tz_offset) }}</lastBuildDate>
+	<language>en</language>
+{% for post in posts %}
+	<item>
+		<title>{{ post.title }}</title>
+		<link>{{ request.base_url }}{{ area }}{{ post.slug }}/</link>
+		<pubDate>{{ post.time|strftime("%a, %d %b %Y %H:%M:%S %z", persona.tz_offset) }}</pubDate>
+		<guid isPermaLink="true">{{ request.base_url }}{{ area }}{{ post.slug }}/</guid>
+		<description>{{ post.summary }}</description>
+	</item>
+{% endfor %}
+</channel>
+</rss>

@@ -1,0 +1,18 @@
+{% for e in events %}
+{% set stamp = e.t|strftime("%a %b %d %H:%M:%S", persona.tz_offset) ~ "." ~ "%06d"|format(e.micros) ~ " " ~ e.t|strftime("%Y", persona.tz_offset) %}
+{% set port = 1024 + (e.conn % 64000) %}
+{% set kind = e.pick % 6 %}
+{% if e.probe and kind < 3 %}
+[{{ stamp }}] [authz_core:error] [pid {{ e.pid }}] [client {{ e.ip }}:{{ port }}] AH01630: client denied by server configuration: {{ docroot }}{{ e.path }}
+{% elif kind == 0 or e.probe %}
+[{{ stamp }}] [core:info] [pid {{ e.pid }}] [client {{ e.ip }}:{{ port }}] AH00128: File does not exist: {{ docroot }}{{ e.path }}
+{% elif kind == 1 and persona.family == "php" %}
+[{{ stamp }}] [proxy_fcgi:error] [pid {{ e.pid }}] [client {{ e.ip }}:{{ port }}] AH01071: Got error 'PHP message: PHP Warning:  Undefined array key "{{ ["page", "id", "lang", "user", "token", "ref"][e.pick % 6] }}" in {{ docroot }}/index.php on line {{ 10 + e.pick % 400 }}'
+{% elif kind == 2 %}
+[{{ stamp }}] [ssl:info] [pid {{ e.pid }}] [client {{ e.ip }}:{{ port }}] AH01964: Connection to child {{ e.pick % 40 }} established (server {{ persona.domain }}:443)
+{% elif kind == 3 %}
+[{{ stamp }}] [mpm_prefork:notice] [pid {{ e.pid - 10 }}] AH00163: {{ web.server_banner or "Apache" }} configured -- resuming normal operations
+{% else %}
+[{{ stamp }}] [core:error] [pid {{ e.pid }}] [client {{ e.ip }}:{{ port }}] AH00126: Invalid URI in request {{ e.method }} {{ e.path }}/%2e%2e/%2e%2e/etc/passwd HTTP/1.1
+{% endif %}
+{% endfor %}

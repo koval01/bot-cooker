@@ -1,0 +1,3 @@
+{% for e in events %}
+{{ e.t|strftime("%Y-%m-%d %H:%M:%S", persona.tz_offset) }}.{{ "%03d"|format(e.micros // 1000) }} {{ e.t|strftime("%:z", persona.tz_offset) }} [{{ "ERR" if e.status >= 500 else ("WRN" if e.status >= 400 else "INF") }}] HTTP {{ e.method }} {{ e.path }} responded {{ e.status }} in {{ "%.4f"|format(e.ms / 7) }} ms
+{% endfor %}

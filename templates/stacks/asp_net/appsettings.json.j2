@@ -1,0 +1,13 @@
+{% if persona.db.engine == "postgres" %}
+{% set conn = "Host=" ~ persona.db.host ~ ";Port=" ~ persona.db.port ~ ";Database=" ~ persona.db.name ~ ";Username=" ~ persona.db.user ~ ";Password=" ~ secret.get("db_password") %}
+{% else %}
+{% set conn = "Server=" ~ persona.db.host ~ ("" if persona.db.port == 1433 else "," ~ persona.db.port) ~ ";Database=" ~ persona.db.name ~ ";User Id=" ~ persona.db.user ~ ";Password=" ~ secret.get("db_password") ~ ";TrustServerCertificate=True;MultipleActiveResultSets=true" %}
+{% endif %}
+{% set doc = {
+  "ConnectionStrings": {["DefaultConnection", "Default", "AppDb"]|choice(persona_seed, "conn-name"): conn},
+  "Logging": {"LogLevel": {"Default": "Information", "Microsoft.AspNetCore": "Warning"}},
+  "AllowedHosts": "*",
+  "Jwt": {"Key": secret.alnum("jwt_secret", 48), "Issuer": "https://" ~ persona.domain, "Audience": (persona.slug|split("-")|first) ~ "-clients"},
+  "Smtp": {"Host": persona.mail.host, "Port": persona.mail.port, "User": cfg.mail_user, "Password": cfg.mail_password, "From": persona.mail.from},
+} %}
+{{ doc|json("compact", 2) }}

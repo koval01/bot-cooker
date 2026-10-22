@@ -1,0 +1,18 @@
+# Comments people leave in config files, built from parts so no two
+# instances share the same notes. Placeholders: {who} (a developer's first
+# name or login), {date} (a date before the epoch), {ticket}, and the parts
+# below.
+patterns:
+  - {weight: 5, text: "TODO: {todo}"}
+  - {weight: 3, text: "FIXME: {fixme}"}
+  - {weight: 3, text: "{who}: {aside}"}
+  - {weight: 3, text: "changed {date} ({who})"}
+  - {weight: 2, text: "{ticket} {aside}"}
+  - {weight: 2, text: "{aside}"}
+  - {weight: 1, text: "temporary, remove after {date}"}
+  - {weight: 1, text: "ask {who} before changing"}
+
+parts:
+  todo: [move this to vault, move to secrets manager, rotate after the migration, rotate before go-live, use the new cluster, split read/write, drop after cutover, remove once v2 is live, check with ops, set per environment]
+  fixme: [prod and staging share this, this is the old key, hardcoded for now, not used anymore?, needs its own user, too permissive]
+  aside: [do not commit, set by deploy script, keep in sync with the worker, same as staging, copied from the wiki, used by cron only, needed for the import job, see runbook, do not change without a restart, value from 1password]

@@ -1,0 +1,79 @@
+{% if persona.distro == "ubuntu" %}
+{% set kernel = ["5.15.0", "6.5.0", "6.8.0"]|choice(persona_seed, "kernel") ~ "-" ~ (40 + epochs.cfg % 60) ~ "-generic #" ~ (50 + epochs.cfg % 70) ~ "-Ubuntu SMP" %}
+{% elif persona.distro == "debian" %}
+{% set kernel = "6.1.0-" ~ (18 + epochs.cfg % 10) ~ "-amd64 #1 SMP PREEMPT_DYNAMIC Debian 6.1." ~ (76 + epochs.cfg % 40) ~ "-1" %}
+{% elif persona.distro == "rhel" %}
+{% set kernel = "4.18.0-" ~ (477 + epochs.cfg % 80) ~ ".el8_" ~ (8 + epochs.cfg % 3) ~ ".x86_64 #1 SMP" %}
+{% else %}
+{% set kernel = "6.6." ~ (14 + epochs.cfg % 30) ~ "-0-virt #1-Alpine SMP PREEMPT_DYNAMIC" %}
+{% endif %}
+{% set apache_sapi = persona.frontend == "apache" and persona_seed % 2 == 0 %}
+{% set sapi = "Apache 2.0 Handler" if apache_sapi else "FPM/FastCGI" %}
+{% set ini_dir = "/etc/php/" ~ v.runtime_short ~ ("/apache2" if apache_sapi else "/fpm") %}
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"><head>
+<style type="text/css">
+body {background-color: #fff; color: #222; font-family: sans-serif;}
+pre {margin: 0; font-family: monospace;}
+table {border-collapse: collapse; border: 0; width: 934px; box-shadow: 1px 2px 3px rgba(0, 0, 0, 0.2);}
+.center {text-align: center;}
+.center table {margin: 1em auto; text-align: left;}
+td, th {border: 1px solid #666; font-size: 75%; vertical-align: baseline; padding: 4px 5px;}
+h1 {font-size: 150%;}
+h2 {font-size: 125%;}
+.p {text-align: left;}
+.e {background-color: #ccf; width: 300px; font-weight: bold;}
+.h {background-color: #99c; font-weight: bold;}
+.v {background-color: #ddd; max-width: 300px; overflow-x: auto; word-wrap: break-word;}
+</style>
+<title>PHP {{ v.runtime }} - phpinfo()</title><meta name="ROBOTS" content="NOINDEX,NOFOLLOW,NOARCHIVE" /></head>
+<body><div class="center">
+<table>
+<tr class="h"><td>
+<h1 class="p">PHP Version {{ v.runtime }}</h1>
+</td></tr>
+</table>
+<table>
+<tr><td class="e">System </td><td class="v">Linux {{ persona.hostname }} {{ kernel }} x86_64 </td></tr>
+<tr><td class="e">Build Date </td><td class="v">{{ (epochs.cfg_anchor - 7776000)|strftime("%b %d %Y %H:%M:%S") }} </td></tr>
+<tr><td class="e">Server API </td><td class="v">{{ sapi }} </td></tr>
+<tr><td class="e">Virtual Directory Support </td><td class="v">disabled </td></tr>
+<tr><td class="e">Configuration File (php.ini) Path </td><td class="v">{{ ini_dir }} </td></tr>
+<tr><td class="e">Loaded Configuration File </td><td class="v">{{ ini_dir }}/php.ini </td></tr>
+<tr><td class="e">Scan this dir for additional .ini files </td><td class="v">{{ ini_dir }}/conf.d </td></tr>
+{% set api = {"7.4": "20190902", "8.0": "20200930", "8.1": "20210902", "8.2": "20220829", "8.3": "20230831", "8.4": "20240924"} %}
+<tr><td class="e">PHP API </td><td class="v">{{ api[v.runtime_short] if v.runtime_short in api else "20230831" }} </td></tr>
+<tr><td class="e">Thread Safety </td><td class="v">disabled </td></tr>
+<tr><td class="e">Registered PHP Streams </td><td class="v">https, ftps, compress.zlib, php, file, glob, data, http, ftp, phar </td></tr>
+</table>
+<h1>Configuration</h1>
+<h2>{% if v.runtime_short in ["7.4", "8.0", "8.1"] %}<a name="module_core">{% else %}<a name="module_core" href="#module_core">{% endif %}Core</a></h2>
+<table>
+<tr><td class="e">PHP Version </td><td class="v">{{ v.runtime }} </td></tr>
+</table>
+{# php.ini-production values; display_errors as this box's php.ini has it. #}
+{% set display = "On" if persona.php_errors and persona.php_errors.display == "ini" else "Off" %}
+{% set memory = (persona.php_errors.memory_limit if persona.php_errors else 128) ~ "M" %}
+<table>
+<tr class="h"><th>Directive</th><th>Local Value</th><th>Master Value</th></tr>
+<tr><td class="e">display_errors</td><td class="v">{{ display }}</td><td class="v">{{ display }}</td></tr>
+<tr><td class="e">display_startup_errors</td><td class="v">Off</td><td class="v">Off</td></tr>
+<tr><td class="e">error_reporting</td><td class="v">22527</td><td class="v">22527</td></tr>
+<tr><td class="e">html_errors</td><td class="v">On</td><td class="v">On</td></tr>
+<tr><td class="e">log_errors</td><td class="v">On</td><td class="v">On</td></tr>
+<tr><td class="e">memory_limit</td><td class="v">{{ memory }}</td><td class="v">{{ memory }}</td></tr>
+<tr><td class="e">output_buffering</td><td class="v">4096</td><td class="v">4096</td></tr>
+</table>
+<h2>Environment</h2>
+<table>
+<tr class="h"><th>Variable</th><th>Value</th></tr>
+<tr><td class="e">DOCUMENT_ROOT </td><td class="v">{{ docroot }} </td></tr>
+<tr><td class="e">SERVER_NAME </td><td class="v">{{ request.server_name }} </td></tr>
+<tr><td class="e">SERVER_ADDR </td><td class="v">{{ persona.net[0] }}.{{ persona.net[1] }}.{{ persona.net[2] }}.{{ 10 + persona_seed % 200 }} </td></tr>
+<tr><td class="e">SERVER_SOFTWARE </td><td class="v">{{ web.server_banner or "nginx" }} </td></tr>
+<tr><td class="e">SERVER_ADMIN </td><td class="v">webmaster@{{ persona.domain }} </td></tr>
+<tr><td class="e">DB_HOST </td><td class="v">{{ persona.db.host }} </td></tr>
+<tr><td class="e">DB_DATABASE </td><td class="v">{{ persona.db.name }} </td></tr>
+<tr><td class="e">DB_USERNAME </td><td class="v">{{ persona.db.user }} </td></tr>
+</table>
+</div></body></html>

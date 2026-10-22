@@ -1,0 +1,28 @@
+# Plain bot-cooker — HTTP only.
+#
+# Use this when something else already terminates TLS in front of you
+# (Cloudflare proxied, an existing Nginx, a load balancer) or for local testing.
+# For a standalone VPS that should serve HTTPS itself, use
+# docker-compose.caddy.yml instead.
+#
+#   docker compose up -d --build
+#
+# For a DNS-only VPS catching raw port-80 scanners, change the port mapping to
+# "80:8080" (requires the host port 80 to be free).
+
+services:
+  bot-cooker:
+    build: .
+    restart: unless-stopped
+    ports:
+      - "8080:8080"      # local test; use "80:8080" for a public port-80 trap
+    environment:
+      # Set a long random secret so fake artifacts stay stable across restarts:
+      COOKER_MASTER_KEY: "change-me-to-a-long-random-string"
+      # Optional fixed stats token (otherwise one is printed in the logs):
+      # COOKER_ADMIN_TOKEN: "pick-a-secret"
+    # Keep a tarpit's many held-open sockets from exhausting host file handles:
+    ulimits:
+      nofile:
+        soft: 65535
+        hard: 65535

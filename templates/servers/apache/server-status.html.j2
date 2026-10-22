@@ -1,0 +1,24 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<html><head>
+<title>Apache Status</title>
+</head><body>
+<h1>Apache Server Status for {{ request.server_name }} (via {{ internal_ip }})</h1>
+
+<dl><dt>Server Version: {{ web.server_banner }}</dt>
+<dt>Server MPM: prefork</dt>
+<dt>Server Built: {{ (epochs.cfg_anchor - 9000000)|strftime("%b %e %Y %H:%M:%S") }}
+</dt></dl><hr /><dl>
+<dt>Current Time: {{ epochs.log_anchor|strftime("%A, %d-%b-%Y %H:%M:%S", persona.tz_offset) }} {{ persona.tz_name }}</dt>
+<dt>Server uptime:  {{ uptime // 86400 }} days {{ (uptime % 86400) // 3600 }} hours {{ (uptime % 3600) // 60 }} minutes</dt>
+<dt>Total accesses: {{ accesses }} - Total Traffic: {{ traffic_gb }} GB</dt>
+<dt>{{ busy }} requests currently being processed, {{ idle }} idle workers</dt>
+</dl>
+<table border="0"><tr><th>Srv</th><th>PID</th><th>Acc</th><th>M</th><th>CPU
+</th><th>SS</th><th>Req</th><th>Client</th><th>VHost</th><th>Request</th></tr>
+
+{% for w in workers %}
+<tr><td><b>{{ w.slot }}-0</b></td><td>{{ w.pid }}</td><td>{{ w.acc }}</td><td><b>{{ w.mode }}</b></td><td>{{ w.cpu }}</td><td>{{ w.ss }}</td><td>{{ w.req }}</td><td>{{ w.client }}</td><td nowrap>{{ persona.domain }}:{{ request.port }}</td><td nowrap>GET {{ w.path }} HTTP/1.1</td></tr>
+
+{% endfor %}
+</table>
+</body></html>

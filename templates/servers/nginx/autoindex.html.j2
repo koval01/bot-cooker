@@ -1,0 +1,17 @@
+{#- ngx_http_autoindex_module, html format, exact sizes: directories first,
+    names over 50 characters cut to 47 plus "..>", a slash only when it fits,
+    the date column after padding to 50. -#}
+<html>
+<head><title>Index of {{ dir }}</title></head>
+<body>
+<h1>Index of {{ dir }}</h1><hr><pre><a href="../">../</a>
+{% for e in entries|sort(attribute="name", case_sensitive=true) if e.dir %}
+{% set label = (e.name[:47] ~ "..>") if e.name|length > 50 else (e.name ~ ("/" if e.name|length < 50 else "")) %}
+<a href="{{ e.name }}/">{{ label }}</a>{{ " " * (51 - label|length) }}{{ e.mtime|strftime("%d-%b-%Y %H:%M") }}                   -
+{% endfor %}
+{% for e in entries|sort(attribute="name", case_sensitive=true) if not e.dir %}
+{% set label = (e.name[:47] ~ "..>") if e.name|length > 50 else e.name %}
+<a href="{{ e.name }}">{{ label }}</a>{{ " " * (51 - label|length) }}{{ e.mtime|strftime("%d-%b-%Y %H:%M") }} {{ e.size|string|rjust(19) }}
+{% endfor %}
+</pre><hr></body>
+</html>

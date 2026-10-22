@@ -1,0 +1,28 @@
+# Groups shared between stacks' .env files. Values are inline templates
+# with the usual context (persona, v, secret, tok, ...) plus `cfg` helpers:
+#   cfg.db_url, cfg.redis_url, cfg.mail_user, cfg.mail_password,
+#   cfg.aws_key_id, cfg.aws_secret, cfg.bucket, cfg.region, cfg.sentry_dsn,
+#   cfg.has_redis, cfg.uses_aws
+# `p` is the chance (fixed per instance) that a var is present at all;
+# `when` must render to "true" for the var to be considered.
+
+groups:
+  aws:
+    - {key: AWS_ACCESS_KEY_ID, value: "{{ cfg.aws_key_id }}"}
+    - {key: AWS_SECRET_ACCESS_KEY, value: "{{ cfg.aws_secret }}"}
+    - {key: "{{ region_key }}", value: "{{ cfg.region }}"}
+    - {key: AWS_BUCKET, value: "{{ cfg.bucket }}"}
+    - {key: AWS_USE_PATH_STYLE_ENDPOINT, value: "false", p: 0.5}
+  stripe:
+    - {key: "{{ 'STRIPE_KEY' if persona.stack == 'laravel' else 'STRIPE_PUBLISHABLE_KEY' }}", value: "pk_live_{{ secret.alnum('stripe_pk', 99) }}"}
+    - {key: "{{ 'STRIPE_SECRET' if persona.stack == 'laravel' else 'STRIPE_SECRET_KEY' }}", value: "sk_live_{{ secret.alnum('stripe_sk', 99) }}"}
+    - {key: STRIPE_WEBHOOK_SECRET, value: "whsec_{{ secret.alnum('whsec', 32) }}", p: 0.6}
+  misc:
+    - {key: OLD_DB_HOST, value: "{{ persona.net[0] }}.{{ persona.net[1] }}.{{ persona.net[2] }}.{{ tok.int('old-db', 2, 250) }}", p: 0.22}
+    - {key: LEGACY_API_URL, value: "https://{{ ['old', 'legacy', 'v1', 'api-old']|choice(persona_seed, 'legacy-host') }}.{{ persona.domain }}/api", p: 0.22}
+    - {key: GOOGLE_ANALYTICS_ID, value: "{{ ['UA-' ~ tok.int('ga', 10000000, 99999999) ~ '-1', 'G-' ~ secret.upper('ga4', 10)]|choice(persona_seed, 'ga') }}", p: 0.22}
+    - {key: RECAPTCHA_SECRET, value: "6L{{ secret.b64url('recaptcha', 38) }}", p: 0.2}
+    - {key: SLACK_WEBHOOK_URL, value: "https://hooks.slack.com/services/T{{ secret.upper('slack-t', 8) }}/B{{ secret.upper('slack-b', 10) }}/{{ secret.alnum('slack', 24) }}", p: 0.18}
+    - {key: MAINTENANCE_MODE, value: "false", p: 0.15}
+    - {key: SENTRY_ENVIRONMENT, value: "{{ persona.app_env }}", p: 0.15}
+    - {key: FEATURE_NEW_CHECKOUT, value: "{{ ['true', 'false']|choice(persona_seed, 'feature') }}", p: 0.12}

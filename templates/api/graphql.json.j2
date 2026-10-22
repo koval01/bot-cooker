@@ -1,0 +1,1 @@
+{{ {"errors": [{"message": ["GET query missing.", "Must provide query string.", "POST body missing, invalid Content-Type, or JSON object has no keys."]|choice(persona_seed, "gql")}]}|json(api_json) }}

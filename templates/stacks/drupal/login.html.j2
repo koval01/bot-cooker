@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8" />
+<meta name="Generator" content="Drupal {{ v.framework_major }} (https://www.drupal.org)" />
+<meta name="MobileOptimized" content="width" />
+<meta name="HandheldFriendly" content="true" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Log in | {{ persona.company }}</title>
+  </head>
+  <body class="user-logged-out path-user">
+    <main role="main">
+      <h1 class="page-title">Log in</h1>
+{% if failed %}
+      <div role="contentinfo" aria-label="Error message" class="messages messages--error">Unrecognized username or password. <a href="/user/password">Forgot your password?</a></div>
+{% endif %}
+<form class="user-login-form" data-drupal-selector="user-login-form" action="/user/login" method="post" id="user-login-form" accept-charset="UTF-8">
+  <div class="js-form-item form-item js-form-type-textfield form-type-textfield js-form-item-name form-item-name">
+      <label for="edit-name" class="js-form-required form-required">Username</label>
+        <input autocorrect="none" autocapitalize="none" spellcheck="false" autofocus="autofocus" autocomplete="username" data-drupal-selector="edit-name" type="text" id="edit-name" name="name" value="" size="60" maxlength="60" class="form-text required" required="required" aria-required="true" />
+  </div>
+  <div class="js-form-item form-item js-form-type-password form-type-password js-form-item-pass form-item-pass">
+      <label for="edit-pass" class="js-form-required form-required">Password</label>
+        <input autocomplete="current-password" data-drupal-selector="edit-pass" type="password" id="edit-pass" name="pass" size="60" maxlength="128" class="form-text required" required="required" aria-required="true" />
+  </div>
+<input autocomplete="off" data-drupal-selector="form-{{ tok.b64url("form-id", 43)|lower }}" type="hidden" name="form_build_id" value="form-{{ tok.b64url("form-build", 43) }}" />
+<input data-drupal-selector="edit-user-login-form" type="hidden" name="form_id" value="user_login_form" />
+<div data-drupal-selector="edit-actions" class="form-actions js-form-wrapper form-wrapper" id="edit-actions"><input data-drupal-selector="edit-submit" type="submit" id="edit-submit" name="op" value="Log in" class="button js-form-submit form-submit" />
+</div>
+</form>
+    </main>
+  </body>
+</html>

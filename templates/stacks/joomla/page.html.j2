@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en-gb" dir="ltr">
+<head>
+    <meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta name="generator" content="Joomla! - Open Source Content Management">
+	<title>{% if home %}{{ persona.company }}{% else %}{{ heading }}{% endif %}</title>
+	<link href="{{ request.base_url }}/index.php?format=feed&amp;type=rss" rel="alternate" type="application/rss+xml" title="{{ heading }}">
+	<link href="{{ assets.files.css.href }}" rel="stylesheet">
+</head>
+<body class="site com_content wrapper-static view-{{ "featured" if home else "article" }} no-layout no-task">
+	<header class="header container-header full-width">
+		<div class="grid-child"><div class="navbar-brand"><a class="brand-logo" href="/"><span title="{{ persona.company }}">{{ persona.company }}</span></a></div></div>
+		<div class="grid-child container-nav"><ul class="mod-menu mod-list nav ">
+{% for item in nav %}
+<li class="nav-item"><a href="{{ item.href }}">{{ item.label }}</a></li>
+{% endfor %}
+</ul></div>
+	</header>
+	<div class="site-grid">
+		<div class="grid-child container-component">
+{% if php_body %}{{ php_body|safe }}{% endif %}
+			<div class="com-content-article item-page">
+				<div class="page-header"><h1>{{ heading }}</h1></div>
+				<div class="com-content-article__body">
+{% for p in paragraphs %}
+<p>{{ p }}</p>
+{% endfor %}
+				</div>
+			</div>
+			<ul class="mod-articleslatestnews">
+{% for link in links %}
+<li itemscope itemtype="https://schema.org/Article"><a href="{{ link.href }}" itemprop="url"><span itemprop="name">{{ link.title }}</span></a></li>
+{% endfor %}
+			</ul>
+		</div>
+	</div>
+	<footer class="container-footer footer full-width"><div class="grid-child">&copy; {{ epochs.cfg_anchor|strftime("%Y") }} {{ persona.company }}.{{ [" All rights reserved.", "", " All rights reserved", " Made with care."]|choice(persona_seed, "footer") }}</div></footer>
+</body>
+</html>

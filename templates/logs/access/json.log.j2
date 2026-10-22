@@ -1,0 +1,3 @@
+{% for e in events %}
+{{ {"time": e.t|strftime("%Y-%m-%dT%H:%M:%S%:z", persona.tz_offset), "remote_addr": e.ip, "request": e.method ~ " " ~ e.path ~ " HTTP/1.1", "status": e.status, "body_bytes_sent": e.bytes, "request_time": e.ms / 1000, "http_referer": (request.base_url ~ e.referer) if e.referer else "", "http_user_agent": e.agent}|json("compact") }}
+{% endfor %}

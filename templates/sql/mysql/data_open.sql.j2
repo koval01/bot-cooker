@@ -1,0 +1,7 @@
+{% import "sql/mysql/macros.j2" as m %}
+--
+-- Dumping data for table {{ m.q(table.name) }}
+--
+
+LOCK TABLES {{ m.q(table.name) }} WRITE;
+/*!40000 ALTER TABLE {{ m.q(table.name) }} DISABLE KEYS */;

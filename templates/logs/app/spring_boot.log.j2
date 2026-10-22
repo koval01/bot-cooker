@@ -1,0 +1,10 @@
+{% set pkg = "c." ~ persona.slug[:1] ~ "." %}
+{% for e in events %}
+{% set level = "ERROR" if e.status >= 500 else (" WARN" if e.status >= 400 else " INFO") %}
+{% set logger = (pkg ~ ["w.UserController", "s.OrderService", "c.SecurityConfig", "w.ApiController", "s.MailService", "r.AuditListener"][e.pick % 6])|ljust(40) %}
+{% if v.framework_major >= 3 %}
+{{ e.t|strftime("%Y-%m-%dT%H:%M:%S", persona.tz_offset) }}.{{ "%03d"|format(e.micros // 1000) }}{{ e.t|strftime("%:z", persona.tz_offset) }}  {{ level }} 1 --- [{{ persona.app_name }}] [nio-8080-exec-{{ 1 + e.pick % 10 }}] {{ logger }} : {{ e.method }} {{ e.path }} -> {{ e.status }} in {{ e.ms }} ms
+{% else %}
+{{ e.t|strftime("%Y-%m-%d %H:%M:%S", persona.tz_offset) }}.{{ "%03d"|format(e.micros // 1000) }} {{ level }} 1 --- [nio-8080-exec-{{ 1 + e.pick % 10 }}] {{ logger }} : {{ e.method }} {{ e.path }} -> {{ e.status }} in {{ e.ms }} ms
+{% endif %}
+{% endfor %}

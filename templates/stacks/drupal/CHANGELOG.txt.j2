@@ -1,0 +1,13 @@
+{% if v.framework_major == 7 %}
+{% set patch = v.framework|split(".")|last|int %}
+{% for date in release_dates %}
+Drupal 7.{{ patch - loop.index0 }}, {{ date|strftime("%Y-%m-%d") }}
+-----------------------
+- Fixed security issues:
+   - SA-CORE-{{ date|strftime("%Y") }}-00{{ 1 + loop.index0 % 5 }}
+
+{% endfor %}
+{% else %}
+All notable changes to Drupal core are documented on drupal.org.
+See https://www.drupal.org/project/drupal/releases for release notes.
+{% endif %}

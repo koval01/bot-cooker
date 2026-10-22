@@ -1,0 +1,41 @@
+# Names by locale. A persona mixes locales according to its time zone (see
+# `locales` in infra.yaml timezones), so a Berlin company employs mostly
+# German names and its customers skew local too. Written in ASCII, as most
+# systems would store a login or an email local part.
+
+en:
+  first: [james, mary, robert, patricia, john, jennifer, michael, linda, david, elizabeth, william, barbara, richard, susan, joseph, jessica, thomas, sarah, chris, karen, daniel, lisa, matthew, nancy, anthony, emily, mark, ashley, steven, emma, paul, olivia, andrew, sophie, josh, chloe, kevin, hannah, brian, grace]
+  last: [smith, johnson, williams, brown, jones, miller, davis, wilson, anderson, taylor, thomas, moore, jackson, martin, lee, thompson, white, harris, clark, lewis, robinson, walker, young, allen, king, wright, scott, green, baker, hill, hughes, clarke, walsh, murphy, evans, roberts, turner, phillips, campbell, parker]
+de:
+  first: [lukas, leon, finn, jonas, paul, felix, maximilian, elias, ben, noah, anna, lena, lea, hannah, sophie, marie, laura, julia, sarah, katharina, stefan, markus, thomas, andreas, sabine, petra, claudia, jan, tim, nina]
+  last: [mueller, schmidt, schneider, fischer, weber, meyer, wagner, becker, schulz, hoffmann, koch, richter, klein, wolf, schroeder, neumann, schwarz, zimmermann, braun, krueger, hofmann, hartmann, lange, schmitt, werner, krause, meier, lehmann, huber, kaiser]
+fr:
+  first: [lucas, hugo, louis, gabriel, arthur, jules, adam, raphael, emma, jade, louise, alice, chloe, lina, camille, manon, julien, nicolas, thomas, pierre, claire, sophie, mathilde, antoine, celine]
+  last: [martin, bernard, dubois, thomas, robert, richard, petit, durand, leroy, moreau, simon, laurent, lefebvre, michel, garcia, david, bertrand, roux, vincent, fournier, morel, girard, andre, mercier, blanc]
+es:
+  first: [hugo, martin, lucas, mateo, leo, daniel, alejandro, pablo, manuel, alvaro, lucia, sofia, martina, maria, julia, paula, valeria, emma, carmen, elena, javier, carlos, diego, sergio, laura]
+  last: [garcia, rodriguez, gonzalez, fernandez, lopez, martinez, sanchez, perez, gomez, martin, jimenez, ruiz, hernandez, diaz, moreno, munoz, alvarez, romero, alonso, gutierrez, navarro, torres, dominguez, vazquez, ramos]
+it:
+  first: [leonardo, francesco, alessandro, lorenzo, mattia, andrea, gabriele, riccardo, tommaso, edoardo, sofia, giulia, aurora, alice, ginevra, emma, giorgia, greta, beatrice, chiara, marco, luca, giuseppe, paolo, francesca]
+  last: [rossi, russo, ferrari, esposito, bianchi, romano, colombo, ricci, marino, greco, bruno, gallo, conti, deluca, mancini, costa, giordano, rizzo, lombardi, moretti, barbieri, fontana, santoro, mariani, rinaldi]
+nl:
+  first: [daan, sem, lucas, levi, finn, milan, bram, thijs, jesse, ruben, emma, julia, sophie, lotte, sanne, fleur, eva, anouk, noor, lieke, jeroen, mark, bas, joost, femke]
+  last: [devries, jansen, vandijk, bakker, visser, smit, meijer, devos, mulder, bos, vos, peters, hendriks, vanleeuwen, dekker, brouwer, dewit, dijkstra, smits, degraaf, vandermeer, kok, jacobs, dehaan, vermeulen]
+pl:
+  first: [jakub, jan, szymon, filip, kacper, antoni, mikolaj, wojciech, piotr, tomasz, zuzanna, julia, maja, zofia, hanna, lena, alicja, maria, anna, katarzyna, pawel, marcin, krzysztof, agnieszka, magdalena]
+  last: [nowak, kowalski, wisniewski, wojcik, kowalczyk, kaminski, lewandowski, zielinski, szymanski, wozniak, dabrowski, kozlowski, jankowski, mazur, kwiatkowski, krawczyk, piotrowski, grabowski, nowakowski, pawlowski, michalski, nowicki, adamczyk, dudek, zajac]
+ua:
+  first: [oleksandr, andriy, dmytro, serhiy, mykola, ivan, yuriy, oleh, taras, bohdan, olena, iryna, natalia, oksana, tetiana, yulia, kateryna, svitlana, anna, mariia, maksym, artem, viktoria, sofiia, nazar]
+  last: [melnyk, shevchenko, boyko, kovalenko, bondarenko, tkachenko, kovalchuk, kravchenko, oliynyk, shevchuk, koval, polishchuk, bondar, tkachuk, moroz, marchenko, lysenko, rudenko, savchenko, petrenko, kuzmenko, pavlenko, kravets, klymenko, ponomarenko]
+nordic:
+  first: [erik, lars, anders, johan, karl, nils, mikael, henrik, oskar, axel, anna, maria, sara, emma, ingrid, kristina, karin, linnea, freja, astrid, ole, mads, sofie, ida, jonas]
+  last: [johansson, andersson, karlsson, nilsson, eriksson, larsson, olsson, persson, svensson, gustafsson, hansen, jensen, nielsen, pedersen, olsen, christensen, larsen, sorensen, rasmussen, johansen, lindqvist, berg, lund, holm, virtanen]
+in:
+  first: [aarav, vivaan, aditya, arjun, sai, reyansh, krishna, ishaan, rohan, rahul, ananya, diya, aadhya, saanvi, priya, kavya, isha, neha, pooja, sneha, amit, vikram, sanjay, deepak, anjali]
+  last: [sharma, verma, patel, gupta, singh, kumar, reddy, iyer, nair, menon, rao, joshi, mehta, shah, desai, kapoor, malhotra, chopra, bose, das, banerjee, mukherjee, pillai, agarwal, jain]
+sea:
+  first: [wei, jun, ming, hui, jia, xin, yi, kai, li, mei, siti, nur, ahmad, muhammad, aisyah, putri, budi, dewi, rizal, hafiz, nguyen, minh, linh, thanh, an]
+  last: [tan, lim, lee, ng, ong, wong, goh, chua, chan, koh, teo, ang, yeo, tay, ho, low, wang, chen, zhang, liu, nguyen, tran, le, pham, rahman]
+au:
+  first: [oliver, jack, william, noah, thomas, james, lucas, henry, charlie, liam, charlotte, olivia, amelia, isla, mia, ava, grace, chloe, matilda, ruby, mitchell, brodie, kylie, shane, tegan]
+  last: [smith, jones, williams, brown, wilson, taylor, johnson, white, martin, anderson, thompson, nguyen, thomas, walker, harris, lee, ryan, robinson, kelly, king, campbell, young, mitchell, murphy, cooper]

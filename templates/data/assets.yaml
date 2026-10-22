@@ -1,0 +1,113 @@
+# Static files the stack's pages link to. The persona fixes every path once
+# (hashes included) and pages, logs and the route table all take them from
+# there, so whatever a page links to exists, is served fast like a file off
+# disk, and shows up in the access log under the same name.
+#
+# Per stack (`default` covers stacks without an entry):
+#   favicon   what /favicon.ico is, weighted: `own` (the site's icon),
+#             `empty` (a zero-byte file, as Laravel ships), `none` (404)
+#   files     name: key templates use (`assets.files.<name>`)
+#             path: placeholders {hex:N} lowercase hex, {b64:N} base64url,
+#                   {pick:<list>} one of `picks.<list>`
+#             query: cache-busting query the page appends ({semver} allowed)
+#             older: {below: <framework major>, path: ...} the naming of the
+#                    toolchain older releases shipped with
+#             body: template under assets/ that renders the file (the site's
+#                   own build output, drawn in its brand)
+#
+# Hash formats: Vite 4 = 8 hex, Vite 5+ = 8 base64url; webpack (CRA, Encore)
+# = 8 hex; Django ManifestStaticFilesStorage = 12 hex; Sprockets 4 = SHA-256
+# (64 hex), Propshaft = 8 hex; Drupal aggregates = 43 base64url.
+
+picks:
+  wp_theme: [astra, twentytwentyfour, generatepress, hello-elementor, kadence, oceanwp]
+  drupal_theme: [olivero, bartik, claro]
+  django_css: [main, style, styles, site, base, app, custom, theme]
+
+stacks:
+  default:
+    favicon: {own: 3, none: 2}
+    files:
+      - {name: css, path: "/assets/app.{hex:8}.css", body: assets/site/app.css.j2}
+
+  laravel:
+    # `public/favicon.ico` in the Laravel skeleton is an empty file.
+    favicon: {empty: 6, own: 3}
+    files:
+      - {name: css, path: "/build/assets/app-{b64:8}.css", older: {below: 11, path: "/build/assets/app-{hex:8}.css"}, body: assets/site/app.css.j2}
+      - {name: js, path: "/build/assets/app-{b64:8}.js", older: {below: 11, path: "/build/assets/app-{hex:8}.js"}, body: assets/site/app.js.j2}
+
+  symfony:
+    favicon: {own: 3, none: 2}
+    files:
+      - {name: css, path: "/build/app.{hex:8}.css", body: assets/site/app.css.j2}
+      - {name: runtime, path: "/build/runtime.{hex:8}.js", body: assets/site/app.js.j2}
+      - {name: js, path: "/build/app.{hex:8}.js", body: assets/site/app.js.j2}
+
+  django:
+    # Plain StaticFilesStorage: the admin's files keep their names, so the
+    # site's own stylesheet does too.
+    favicon: {own: 2, none: 3}
+    files:
+      - {name: css, path: "/static/css/{pick:django_css}.css", body: assets/site/app.css.j2}
+      - {name: admin_base, path: "/static/admin/css/base.css", body: assets/site/app.css.j2}
+      - {name: admin_dark, path: "/static/admin/css/dark_mode.css", body: assets/site/app.css.j2}
+      - {name: admin_nav, path: "/static/admin/css/nav_sidebar.css", body: assets/site/app.css.j2}
+      - {name: admin_login, path: "/static/admin/css/login.css", body: assets/site/app.css.j2}
+      - {name: admin_responsive, path: "/static/admin/css/responsive.css", body: assets/site/app.css.j2}
+      - {name: admin_theme_js, path: "/static/admin/js/theme.js", body: assets/site/app.js.j2}
+      - {name: admin_nav_js, path: "/static/admin/js/nav_sidebar.js", body: assets/site/app.js.j2}
+
+  rails:
+    favicon: {own: 3, none: 2}
+    files:
+      - {name: css, path: "/assets/application-{hex:8}.css", older: {below: 8, path: "/assets/application-{hex:64}.css"}, body: assets/site/app.css.j2}
+      - {name: js, path: "/assets/application-{hex:8}.js", older: {below: 8, path: "/assets/application-{hex:64}.js"}, body: assets/site/app.js.j2}
+
+  express:
+    # A Create React App build: main.<hash>.css / .js under /static.
+    favicon: {own: 4, none: 1}
+    files:
+      - {name: css, path: "/static/css/main.{hex:8}.css", body: assets/site/app.css.j2}
+      - {name: js, path: "/static/js/main.{hex:8}.js", body: assets/site/app.js.j2}
+
+  asp_net:
+    # The `dotnet new webapp` layout under wwwroot/.
+    favicon: {own: 4, none: 1}
+    files:
+      - {name: bootstrap, path: "/lib/bootstrap/dist/css/bootstrap.min.css", body: assets/site/app.css.j2}
+      - {name: css, path: "/css/site.css", query: "v={b64:43}", body: assets/site/app.css.j2}
+
+  wordpress:
+    favicon: {own: 3, none: 2}
+    files:
+      - {name: block_library, path: "/wp-includes/css/dist/block-library/style.min.css", body: assets/site/app.css.j2}
+      - {name: theme, path: "/wp-content/themes/{pick:wp_theme}/style.css", query: "ver={semver}", body: assets/site/app.css.j2}
+      - {name: dashicons, path: "/wp-includes/css/dashicons.min.css", body: assets/site/app.css.j2}
+      - {name: emoji, path: "/wp-includes/js/wp-emoji-release.min.js", body: assets/site/app.js.j2}
+      - {name: buttons, path: "/wp-includes/css/buttons.min.css", body: assets/site/app.css.j2}
+      - {name: forms, path: "/wp-admin/css/forms.min.css", body: assets/site/app.css.j2}
+      - {name: login, path: "/wp-admin/css/login.min.css", body: assets/site/app.css.j2}
+
+  joomla:
+    # Cassiopeia/Atum since Joomla 4; Protostar/Isis before.
+    favicon: {own: 3, none: 2}
+    files:
+      - {name: css, path: "/media/templates/site/cassiopeia/css/template.min.css", older: {below: 4, path: "/templates/protostar/css/template.css"}, body: assets/site/app.css.j2}
+      - {name: admin_css, path: "/media/templates/administrator/atum/css/template.min.css", older: {below: 4, path: "/administrator/templates/isis/css/template.css"}, body: assets/site/app.css.j2}
+
+  drupal:
+    favicon: {own: 3, none: 2}
+    files:
+      - {name: css, path: "/sites/default/files/css/css_{b64:43}.css", query: "delta=0&language=en&theme={pick:drupal_theme}&include={b64:60}", body: assets/site/app.css.j2}
+
+# Font stacks a site's own stylesheet may use.
+fonts:
+  - "-apple-system,BlinkMacSystemFont,\"Segoe UI\",Roboto,\"Helvetica Neue\",Arial,sans-serif"
+  - "\"Inter\",system-ui,sans-serif"
+  - "\"Open Sans\",Helvetica,Arial,sans-serif"
+  - "Roboto,Arial,sans-serif"
+  - "\"Source Sans Pro\",sans-serif"
+  - "Georgia,\"Times New Roman\",serif"
+  - "\"Lato\",\"Helvetica Neue\",sans-serif"
+  - "system-ui,-apple-system,\"Segoe UI\",Roboto,\"Noto Sans\",sans-serif"

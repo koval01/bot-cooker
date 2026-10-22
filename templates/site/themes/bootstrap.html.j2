@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="{{ ["en", "en-US", "en-GB"]|choice(persona_seed, "lang") }}">
+<head>
+{% include "site/_head.html.j2" %}
+</head>
+<body class="{{ "home" if home else "page" }}">
+<nav class="navbar navbar-expand-{{ ["lg", "md", "lg", "xl"]|choice(persona_seed, "bs-expand") }} {{ ["navbar-light bg-light", "navbar-dark bg-dark", "navbar-light bg-white border-bottom", "navbar-dark bg-primary"]|choice(persona_seed, "bs-nav") }}">
+  <div class="{{ ["container", "container-lg", "container-xl", "container-fluid"]|choice(persona_seed, "bs-container") }}">
+    <a class="navbar-brand" href="/">{{ persona.company }}</a>
+    <ul class="navbar-nav {{ ["me-auto", "ms-auto", "me-auto mb-2 mb-lg-0", "ml-auto"]|choice(persona_seed, "bs-nav-align") }}">
+{% for item in nav %}
+      <li class="nav-item"><a class="nav-link" href="{{ item.href }}">{{ item.label }}</a></li>
+{% endfor %}
+    </ul>
+    <a class="btn btn-outline-primary" href="{{ site.login_path }}">{{ ["Log in", "Sign in", "Login", "Account"]|choice(persona_seed, "nav-login") }}</a>
+  </div>
+</nav>
+<main class="{{ ["container", "container-lg", "container-xl"]|choice(persona_seed, "bs-container") }} {{ ["py-4", "py-5", "my-4", "mt-5 mb-4"]|choice(persona_seed, "bs-main") }}">
+  <h1 class="mb-4">{{ heading }}</h1>
+{% for p in paragraphs %}
+  <p class="lead">{{ p }}</p>
+{% endfor %}
+  <div class="row">
+{% for link in links %}
+    <div class="{{ ["col-md-6", "col-lg-4", "col-sm-6 col-lg-4", "col-12 col-md-6"]|choice(persona_seed, "bs-col") }}">
+      <div class="card {{ ["mb-3", "mb-4", "h-100 shadow-sm", "border-0 shadow-sm mb-3"]|choice(persona_seed, "bs-card") }}"><div class="card-body">
+        <h2 class="h5 card-title"><a href="{{ link.href }}">{{ link.title }}</a></h2>
+        <p class="card-text"><small class="text-muted">{{ link.time|strftime("%B %e, %Y") }}</small></p>
+      </div></div>
+    </div>
+{% endfor %}
+  </div>
+</main>
+<footer class="footer mt-auto py-3 bg-light"><div class="container"><span class="text-muted">&copy; {{ epochs.cfg_anchor|strftime("%Y") }} {{ persona.company }}.{{ [" All rights reserved.", "", " All rights reserved", " Made with care."]|choice(persona_seed, "footer") }}</span></div></footer>
+</body>
+</html>

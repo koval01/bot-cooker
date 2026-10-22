@@ -1,0 +1,14 @@
+{% for e in events %}
+{% set rid = "%08x"|format(e.conn) ~ "-" ~ "%04x"|format(e.pick % 65536) ~ "-4" ~ "%03x"|format(e.pid % 4096) ~ "-a" ~ "%03x"|format(e.micros % 4096) ~ "-" ~ "%012x"|format(e.t * 7919 % 281474976710655) %}
+{% set head = ("E" if e.status >= 500 else "I") ~ ", [" ~ e.t|strftime("%Y-%m-%dT%H:%M:%S", persona.tz_offset) ~ "." ~ "%06d"|format(e.micros) ~ " #" ~ e.pid ~ "]  " ~ ("ERROR" if e.status >= 500 else " INFO") ~ " -- : [" ~ rid ~ "]" %}
+{% set kind = e.pick % 3 %}
+{% if kind == 0 %}
+{{ head }} Started {{ e.method }} "{{ e.path }}" for {{ e.ip }} at {{ e.t|strftime("%Y-%m-%d %H:%M:%S %z", persona.tz_offset) }}
+{% elif kind == 1 %}
+{{ head }} Processing by {{ ["Users", "Sessions", "Pages", "Api::V1::" ~ site.api_resources[e.pick % site.api_resources|length]|title|replace("_", "")]|choice(e.pick, "ctl") }}Controller#{{ ["index", "show", "create", "new", "update"][e.pick % 5] }} as {{ ["HTML", "JSON", "*/*"][e.pick % 3] }}
+{% else %}
+{% set reasons = {"200": "OK", "301": "Moved Permanently", "302": "Found", "304": "Not Modified", "401": "Unauthorized", "403": "Forbidden", "404": "Not Found", "419": "Page Expired"} %}
+{% set reason = reasons[e.status ~ ""] if (e.status ~ "") in reasons else "Internal Server Error" %}
+{{ head }} Completed {{ e.status }} {{ reason }} in {{ e.ms }}ms (Views: {{ "%.1f"|format(e.ms * 0.4) }}ms | ActiveRecord: {{ "%.1f"|format(e.ms * 0.3) }}ms | Allocations: {{ 800 + e.conn % 90000 }})
+{% endif %}
+{% endfor %}

@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="{{ ["en", "en-US", "en-GB"]|choice(persona_seed, "lang") }}" class="{{ ["h-full", "scroll-smooth", "h-full antialiased", "min-h-full"]|choice(persona_seed, "tw-html") }}">
+<head>
+{% include "site/_head.html.j2" %}
+</head>
+<body class="{{ ["h-full bg-white text-gray-900 antialiased", "bg-gray-50 text-slate-800", "min-h-screen bg-white font-sans text-gray-900", "bg-white text-zinc-900"]|choice(persona_seed, "tw-body") }}">
+  <header class="{{ ["border-b", "border-b bg-white", "shadow-sm", "sticky top-0 bg-white/90 backdrop-blur"]|choice(persona_seed, "tw-header") }}">
+    <div class="{{ ["max-w-6xl", "max-w-5xl", "max-w-7xl", "container"]|choice(persona_seed, "tw-width") }} mx-auto {{ ["px-4", "px-6", "px-4 sm:px-6 lg:px-8"]|choice(persona_seed, "tw-px") }} flex items-center justify-between {{ ["py-4", "py-3", "py-5", "h-16"]|choice(persona_seed, "tw-hpy") }}">
+      <a href="/" class="font-semibold text-lg">{{ persona.company }}</a>
+      <nav class="flex {{ ["gap-6", "gap-4", "gap-8", "space-x-6"]|choice(persona_seed, "tw-gap") }} {{ ["text-sm", "text-sm font-medium", "text-base"]|choice(persona_seed, "tw-navtext") }}">
+{% for item in nav %}
+        <a href="{{ item.href }}" class="hover:underline">{{ item.label }}</a>
+{% endfor %}
+        <a href="{{ site.login_path }}" class="font-medium">{{ ["Log in", "Sign in", "Login", "Account"]|choice(persona_seed, "nav-login") }} &rarr;</a>
+      </nav>
+    </div>
+  </header>
+  <main class="{{ ["max-w-6xl", "max-w-5xl", "max-w-7xl", "container"]|choice(persona_seed, "tw-width") }} mx-auto {{ ["px-4", "px-6", "px-4 sm:px-6 lg:px-8"]|choice(persona_seed, "tw-px") }} {{ ["py-10", "py-12", "py-8", "py-16"]|choice(persona_seed, "tw-mainpy") }}">
+    <h1 class="text-3xl font-bold tracking-tight">{{ heading }}</h1>
+    <div class="{{ ["prose lg:prose-lg mt-6", "prose max-w-none mt-6", "prose prose-slate mt-8", "mt-6 space-y-4 text-lg leading-8"]|choice(persona_seed, "tw-prose") }}">
+{% for p in paragraphs %}
+      <p>{{ p }}</p>
+{% endfor %}
+    </div>
+    <ul class="{{ ["mt-10 divide-y", "mt-12 space-y-6", "mt-8 divide-y divide-gray-100", "mt-10 grid gap-6 sm:grid-cols-2"]|choice(persona_seed, "tw-list") }}">
+{% for link in links %}
+      <li class="py-4"><a href="{{ link.href }}" class="font-medium">{{ link.title }}</a> <time class="text-sm text-gray-500" datetime="{{ link.time|strftime("%Y-%m-%d") }}">{{ link.time|strftime("%b %e, %Y") }}</time></li>
+{% endfor %}
+    </ul>
+  </main>
+  <footer class="border-t py-6 text-sm text-gray-500"><div class="max-w-6xl mx-auto px-4">&copy; {{ epochs.cfg_anchor|strftime("%Y") }} {{ persona.company }}.{{ [" All rights reserved.", "", " All rights reserved", " Made with care."]|choice(persona_seed, "footer") }}</div></footer>
+</body>
+</html>

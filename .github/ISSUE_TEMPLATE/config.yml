@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Security problem or a way to recognise a trap
+    url: https://github.com/koval01/bot-cooker/security/advisories/new
+    about: Report privately. Public reports help the scanners the project slows down.
+  - name: Documentation
+    url: https://koval01.github.io/bot-cooker/
+    about: Deployment, configuration and troubleshooting guides.

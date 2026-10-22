@@ -1,0 +1,6 @@
+{% set base = request.base_url ~ "/actuator" %}
+{{ {"_links": {"self": {"href": base, "templated": false},
+  "health": {"href": base ~ "/health", "templated": false}, "health-path": {"href": base ~ "/health/{*path}", "templated": true},
+  "info": {"href": base ~ "/info", "templated": false}, "env": {"href": base ~ "/env", "templated": false},
+  "env-toMatch": {"href": base ~ "/env/{toMatch}", "templated": true}, "metrics": {"href": base ~ "/metrics", "templated": false},
+  "mappings": {"href": base ~ "/mappings", "templated": false}, "loggers": {"href": base ~ "/loggers", "templated": false}}}|json(api_json) }}

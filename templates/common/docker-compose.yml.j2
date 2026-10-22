@@ -1,0 +1,58 @@
+{% set app = persona.slug|split("-")|first %}
+{% if persona_seed % 5 < 2 %}
+version: "{{ ["3", "3.8", "3.9", "2.4"]|choice(persona_seed, "compose-version") }}"
+
+{% endif %}
+services:
+  app:
+    image: {{ ["registry.gitlab.com/" ~ app ~ "/" ~ app, "ghcr.io/" ~ app ~ "/web", app ~ "/" ~ app]|choice(persona_seed, "image") }}:{{ ["latest", "prod", "main", "stable"]|choice(persona_seed, "tag") }}
+    restart: unless-stopped
+    env_file: .env
+    depends_on:
+      - db
+{% if persona_seed % 2 %}
+    ports:
+      - "127.0.0.1:{{ [3000, 8000, 8080, 9000]|choice(persona_seed, "app-port") }}:{{ [3000, 8000, 8080, 9000]|choice(persona_seed, "app-port") }}"
+{% endif %}
+
+  db:
+{% if persona.db.engine == "postgres" %}
+    image: postgres:{{ v.db_major }}
+    environment:
+      POSTGRES_DB: {{ persona.db.name }}
+      POSTGRES_USER: {{ persona.db.user }}
+      POSTGRES_PASSWORD: {{ secret.get("db_password") }}
+{% elif persona.db.engine == "mariadb" %}
+    image: mariadb:{{ v.db_short }}
+    environment:
+      MARIADB_DATABASE: {{ persona.db.name }}
+      MARIADB_USER: {{ persona.db.user }}
+      MARIADB_PASSWORD: {{ secret.get("db_password") }}
+      MARIADB_ROOT_PASSWORD: {{ secret.get("db_root_password") }}
+{% elif persona.db.engine == "mssql" %}
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    environment:
+      ACCEPT_EULA: "Y"
+      MSSQL_SA_PASSWORD: {{ secret.get("db_password") }}
+{% else %}
+    image: mysql:{{ v.db_short }}
+    environment:
+      MYSQL_DATABASE: {{ persona.db.name }}
+      MYSQL_USER: {{ persona.db.user }}
+      MYSQL_PASSWORD: {{ secret.get("db_password") }}
+      MYSQL_ROOT_PASSWORD: {{ secret.get("db_root_password") }}
+{% endif %}
+    restart: unless-stopped
+    volumes:
+      - {{ ["dbdata", "db-data", "database"]|choice(persona_seed, "volume") }}:/var/lib/{{ "postgresql/data" if persona.db.engine == "postgres" else "mysql" }}
+{% if cfg.has_redis %}
+
+  redis:
+    image: redis:{{ ["6", "7", "7.2", "7-alpine"]|choice(persona_seed, "redis") }}
+{% if persona.cache.has_password %}
+    command: redis-server --requirepass {{ secret.get("redis_password") }}
+{% endif %}
+{% endif %}
+
+volumes:
+  {{ ["dbdata", "db-data", "database"]|choice(persona_seed, "volume") }}:

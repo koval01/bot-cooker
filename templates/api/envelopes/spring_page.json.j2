@@ -1,0 +1,4 @@
+{{ {"content": "MARKER",
+  "pageable": {"pageNumber": page - 1, "pageSize": per_page, "sort": {"empty": true, "sorted": false, "unsorted": true}, "offset": first - 1, "paged": true, "unpaged": false},
+  "last": page >= pages, "totalPages": pages, "totalElements": total, "size": per_page, "number": page - 1,
+  "sort": {"empty": true, "sorted": false, "unsorted": true}, "first": page == 1, "numberOfElements": on_page, "empty": on_page == 0}|json(api_json) }}

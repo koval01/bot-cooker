@@ -1,0 +1,14 @@
+{% import "sql/postgres/macros.j2" as m %}
+--
+-- Name: {{ table.name }}; Type: TABLE; Schema: public; Owner: {{ persona.db.user }}
+--
+
+CREATE TABLE public.{{ m.q(table.name) }} (
+{% for c in table.columns %}
+    {{ m.q(c.name) }} {{ m.coltype(c) }}{{ "," if not loop.last }}
+{% endfor %}
+);
+
+
+ALTER TABLE public.{{ m.q(table.name) }} OWNER TO {{ persona.db.user }};
+

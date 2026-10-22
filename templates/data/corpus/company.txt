@@ -1,0 +1,6 @@
+{company} was founded by a small group of people who were tired of doing {topic} the hard way. We still work the way we started: close to our customers, with short feedback loops and as little ceremony as possible.
+Our offices are small and our team is spread across several time zones. We meet in person a few times a year and spend the rest of the time writing things down, which is why our documentation is better than most.
+We work with companies of every size, from local businesses to large organisations with complex requirements around {topic2}. What they have in common is that they want things to work without having to think about them.
+Quality matters more to us than speed. Every release is tested by the people who built it and by the people who support it. When something goes wrong we write about it openly and explain what we changed.
+We take privacy seriously. We collect only the data we need to provide the service, we never sell it, and we explain in plain language what happens to it.
+If you would like to talk to us about {product} or about {topic}, send us a message. A real person reads every message, usually within one working day.

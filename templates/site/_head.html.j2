@@ -1,0 +1,6 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{% if home %}{{ persona.company }}{% else %}{{ heading }} {{ ["|", "–", "-", "·"]|choice(persona_seed, "title-sep") }} {{ persona.company }}{% endif %}</title>
+{% if tagline %}<meta name="description" content="{{ tagline }}">
+{% endif %}
+{% include ["stacks/" ~ persona.stack ~ "/head.html.j2", "stacks/default/head.html.j2"] %}

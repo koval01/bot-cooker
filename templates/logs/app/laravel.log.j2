@@ -1,0 +1,27 @@
+{% for e in events %}
+{% set level = ["ERROR", "ERROR", "WARNING", "INFO", "INFO", "DEBUG", "ERROR", "NOTICE"][e.pick % 8] %}
+{% set res = site.api_resources[e.pick % site.api_resources|length] %}
+{% set plural = res|replace("_", " ")|title|replace(" ", "") %}
+{% set cls = plural[:-1] if plural is endingwith("s") else plural %}
+{% set kind = (e.pick // 8) % 9 %}
+{% if kind == 0 %}
+{% set msg = "SQLSTATE[HY000] [2002] Connection refused (Connection: " ~ persona.db.engine ~ ", SQL: select * from `users` where `id` = " ~ (1 + e.conn % 900) ~ " limit 1)" %}
+{% elif kind == 1 %}
+{% set msg = 'Undefined array key "' ~ ["data", "id", "items", "meta", "total"][e.pick % 5] ~ '" {"userId":' ~ (1 + e.conn % 900) ~ ',"exception":"[object] (ErrorException(code: 0): Undefined array key at /var/www/app/Http/Controllers/' ~ cls ~ 'Controller.php:' ~ (20 + e.pick % 300) ~ ')"}' %}
+{% elif kind == 2 %}
+{% set msg = 'The MAC is invalid. {"exception":"[object] (Illuminate\\Contracts\\Encryption\\DecryptException(code: 0): The MAC is invalid.)"}' %}
+{% elif kind == 3 %}
+{% set msg = "Processing: App\\Jobs\\" ~ ["Sync", "Send", "Generate", "Import", "Notify"][e.pick % 5] ~ cls %}
+{% elif kind == 4 %}
+{% set msg = "Route [" ~ ["login", "dashboard", "home", res ~ ".index"][e.pick % 4] ~ "] not defined." %}
+{% elif kind == 5 %}
+{% set msg = "cURL error 28: Operation timed out after 30001 milliseconds with 0 bytes received (see https://curl.haxx.se/libcurl/c/libcurl-errors.html) for https://api." ~ ["stripe.com", "mailgun.net", "hubapi.com", "pusher.com"][e.pick % 4] ~ "/v1/" ~ res %}
+{% elif kind == 6 %}
+{% set msg = "Too many login attempts. Please try again in " ~ (30 + e.pick % 60) ~ " seconds. {\"ip\":\"" ~ e.ip ~ "\"}" %}
+{% elif kind == 7 %}
+{% set msg = "Allowed memory size of 134217728 bytes exhausted (tried to allocate " ~ (4096 * (1 + e.pick % 64)) ~ " bytes)" %}
+{% else %}
+{% set msg = "Unauthenticated. {\"url\":\"" ~ request.base_url ~ e.path ~ "\"}" %}
+{% endif %}
+[{{ e.t|strftime("%Y-%m-%d %H:%M:%S", persona.tz_offset) }}] {{ persona.app_env }}.{{ level }}: {{ msg }}
+{% endfor %}

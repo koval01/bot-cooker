@@ -1,0 +1,103 @@
+# bot-cooker configuration
+# ------------------------
+# Every setting below shows its built-in default, so an empty file (or no file
+# at all) already gives you a working tarpit. Uncomment and change what you need.
+# Env vars override a few fields: COOKER_MASTER_KEY, COOKER_ADMIN_TOKEN,
+# COOKER_HTTP_BIND, COOKER_TEMPLATES_DIR, COOKER_MAX_CONCURRENT.
+
+# --- Plain-HTTP listener (always what actually serves traffic) --------------
+# Point your reverse proxy / Cloudflare DNS-only record at this. In the Docker
+# Caddy deployment, Caddy terminates TLS and forwards here.
+http:
+  enabled: true
+  bind: "0.0.0.0:8080"
+
+# --- Tarpit timing -----------------------------------------------------------
+tarpit:
+  # Headers go out after the application's usual response time (each
+  # instance has its own, ~200-500 ms here); the time is then spent in the
+  # body, which trickles out unevenly, like a weak server on a poor link.
+  initial_delay_ms: 350        # typical time until the headers
+  initial_delay_jitter: 0.5    # spread of that time
+  chunk_bytes: 48              # typical bytes per piece of the body
+  delay_ms: 800                # typical pause between pieces
+  delay_jitter: 0.4            # spread of the pauses
+  abort_probability: 0.15      # ~15% of connections get cut mid-response
+  max_bytes: 4194304           # 4 MiB fed to one client before we give up
+  max_seconds: 1200            # 20 min hard cap per connection
+  max_idle_ms: 6000            # never silent longer: below scanners' read timeouts
+
+# --- Deception engine -------------------------------------------------------
+deception:
+  # IMPORTANT: set a long random secret in production (or COOKER_MASTER_KEY).
+  # Empty => a random key each start => fake artifacts change on every restart,
+  # which can tip off a scanner doing replay checks.
+  master_key: ""
+  config_epoch_hours: 168      # .env/.git/configs rotate ~weekly
+  log_epoch_hours: 8           # logs/structure shift faster (looks "alive")
+  epoch_jitter_hours: 6        # fuzz the rotation boundaries
+  # The master key also derives the instance PERSONA: company, domain, staff,
+  # stack (Laravel/Django/WordPress/…), front server, versions, file layout,
+  # formatting habits and timing temperament. Two keys = two unrelated-looking
+  # systems. 0 = the persona never changes; N = a new identity every N days.
+  persona_era_days: 0
+  # Overlay a directory on the built-in template catalog and data (see
+  # templates/README.md). Point it at a content pack made by `cooker-pack`
+  # (README → Content packs) to give this instance its own prose and theme.
+  # templates_dir: "./my-templates"
+  # The OS scanners see in the TCP/IP stack: auto (the one this binary runs
+  # on), unix or windows. Personas only use servers that run on it, so a
+  # Windows box never claims nginx on Ubuntu and a Linux box never claims IIS.
+  # host_os: auto
+
+# --- Routing ----------------------------------------------------------------
+# Left commented so the route table is derived from the persona: the stack
+# decides what exists (a Django box has /admin/login/, a WordPress box has
+# /wp-login.php), per-instance coin flips decide which leaks lie around
+# (.env, .git, backups, logs, phpinfo…), and every other path gets the stack's
+# realistic 404 — not an endless maze. robots.txt only lists paths that exist.
+#
+# Uncomment to fully REPLACE the persona table (unmatched paths still get the
+# persona's 404). First match wins. `*` matches any run of characters. Valid
+# profiles:
+#   env  git  sql_dump  log  login  php_info  server_status  joomla  drupal
+#   json  sitemap  rss  secrets  labyrinth  not_found  forbidden  blank  asset
+# (`wp_login` is accepted as an alias of `login`.) Content still follows the
+# persona: `env` renders a .env, wp-config.php or database.yml by path/stack.
+#
+# routes:
+#   - { pattern: "/.env",            profile: env }
+#   - { pattern: "/.git/*",          profile: git }
+#   - { pattern: "*.sql",            profile: sql_dump }
+#   - { pattern: "/wp-login.php",    profile: login }
+#   - { pattern: "/api/*",           profile: json }
+#   - { pattern: "/sitemap.xml*",    profile: sitemap }
+#   - { pattern: "/my-custom-panel/*", profile: labyrinth }
+#   - { pattern: "*",                profile: labyrinth }   # old "maze everything"
+
+# --- Allowlist (OPT-IN; empty = trap everyone) ------------------------------
+# On a dedicated trap subdomain, leave this empty: nothing legitimate lives
+# there, and sparing clients by User-Agent would just hand scanners a one-header
+# bypass (they'd send `User-Agent: Googlebot`). Only trust `cidrs` — IPs can't
+# be spoofed on a completed TCP handshake. Use this only if you run bot-cooker
+# alongside a real site.
+allowlist:
+  user_agents: []
+  # user_agents: ["googlebot", "bingbot"]   # spoofable — convenience only
+  cidrs: []
+  # cidrs: ["203.0.113.0/24", "198.51.100.7/32"]
+
+# --- Safety limits (protect YOUR box) ---------------------------------------
+limits:
+  # Past this, new clients get a fast fake instead of another held-open slot.
+  # Each held connection costs ~30 KiB of RAM and one open file: 8000 is
+  # ~250 MiB. At startup the cap is lowered to fit the open-files limit
+  # (ulimit -n / LimitNOFILE), which is raised as far as the hard limit allows.
+  max_concurrent: 8000
+
+# --- Stats ------------------------------------------------------------------
+stats:
+  report_interval_secs: 60     # console "kitchen report" cadence (0 = off)
+  admin_path: "/_cooker/stats" # token-gated JSON endpoint
+  admin_token: ""              # empty => a random one is printed at startup
+  max_tracked_ips: 50000       # cap on the per-IP leaderboard table
