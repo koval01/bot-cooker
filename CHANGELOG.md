@@ -7,6 +7,8 @@ change behaviour and configuration).
 
 ## [Unreleased]
 
+## [0.1.0] - 2026-10-23
+
 First public release.
 
 ### Trap
@@ -60,4 +62,5 @@ First public release.
 - Apache-2.0 licence with a NOTICE file, documentation site, code of conduct,
   contributing guide and security policy.
 
-[Unreleased]: https://github.com/koval01/bot-cooker/commits/main
+[Unreleased]: https://github.com/koval01/bot-cooker/compare/v0.1.0...HEAD
+[0.1.0]: https://github.com/koval01/bot-cooker/releases/tag/v0.1.0
