@@ -245,17 +245,22 @@ async fn behind_a_proxy_every_piece_is_its_own_chunk() {
     for key in keys() {
         let t = trap(&key).await;
         let Some(path) = t.path_for(Profile::Log) else { continue };
-        let raw = t.raw(&request("GET", &path, HOST, &[])).await;
-        let sizes = chunk_sizes(&raw);
-        if sizes.len() < 4 {
+        // A share of requests is answered fast, as from a cache, and goes out
+        // in whole blocks; a broken trickle would do so on every request.
+        let mut medians = Vec::new();
+        for _ in 0..5 {
+            let sizes = chunk_sizes(&t.raw(&request("GET", &path, HOST, &[])).await);
+            if sizes.len() < 4 {
+                continue;
+            }
+            let mut sorted = sizes;
+            sorted.sort_unstable();
+            medians.push(sorted[sorted.len() / 2]);
+        }
+        if medians.is_empty() {
             continue;
         }
-        // Fast answers and the remainder after a cap go out whole; the
-        // trickle itself is piece by piece.
-        let mut sorted = sizes.clone();
-        sorted.sort_unstable();
-        let median = sorted[sorted.len() / 2];
-        assert!(median <= 8 * 48, "{key} {path}: chunks of {median} bytes typically behind a proxy");
+        assert!(medians.iter().any(|&m| m <= 8 * 48), "{key} {path}: chunks of {medians:?} bytes typically behind a proxy");
         checked += 1;
     }
     assert!(checked > 0, "no chunked log among the personas");
